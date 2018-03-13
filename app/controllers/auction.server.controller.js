@@ -39,7 +39,11 @@ exports.read = function (req, res) {
     let auctionId = req.params.auctionId;
     console.log("reading... auctionId : " + auctionId);
     Auction.getOne(auctionId, function (result) {
-        res.json(result);
+        let ret = {};
+        ret['code'] = 200;
+        ret['message'] = "success";
+        ret['data'] = result;
+        res.status(200).json(ret);
     });
 
 }
