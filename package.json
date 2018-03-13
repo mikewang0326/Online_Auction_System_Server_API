@@ -1,7 +1,6 @@
 {
   "name": "SENG365-Auction-Site-API",
   "author": "Xin Wang <xwa118@uclive.ac.nz>",
-  "main": "app",
   "version": "0.0.1",
   "scripts": {
     "start": "node server.js"
