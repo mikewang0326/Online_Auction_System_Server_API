@@ -1,6 +1,7 @@
 const db = require('../../config/db')
 
-exports.getAll = function (done) {
+exports.getList = function (req, done) {
+
     db.get_pool().query('SELECT * FROM auction', function (err, rows) {
         if (err) {
             console.log(err.message)

@@ -1,7 +1,7 @@
 const Auction = require('../models/auction.server.model');
 
 exports.list = function (req, res) {
-    Auction.getAll(function (result) {
+    Auction.getList(req, function (result) {
         res.json(result);
     })
 }
@@ -39,11 +39,7 @@ exports.read = function (req, res) {
     let auctionId = req.params.auctionId;
     console.log("reading... auctionId : " + auctionId);
     Auction.getOne(auctionId, function (result) {
-        let ret = {};
-        ret['code'] = 200;
-        ret['message'] = "success";
-        ret['data'] = result;
-        res.status(200).json(ret);
+        res.status(200).json(result);
     });
 
 }
