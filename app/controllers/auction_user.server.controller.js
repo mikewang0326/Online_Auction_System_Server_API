@@ -68,7 +68,9 @@ exports.create = function (req, res) {
     ];
 
     User.insert(data, function (result) {
-        res.json(result);
+        let ret = handleResult(result);
+        res.status(parseInt(ret['code']));
+        res.json(ret['data']);
     })
 }
 
@@ -135,11 +137,6 @@ exports.update = function (req, res) {
         return;
     }
 
-    // let data = [
-    //     [fields.toString()],
-    //     [values]
-    // ];
-
     User.alter(userId, fields, values, function (result) {
         res.json(result);
     });
@@ -172,6 +169,55 @@ exports.logout = function (req, res) {
     User.getOne(userId, function (result) {
         res.json(result);
     });
+
+}
+
+/**
+ *
+ * Handle the mysql return result
+ *
+ * 1, success, not empty   201
+ *
+ * 2, success empty        400
+ *
+ *
+ * success sql return infomation:
+ *
+ * {
+ *  "fieldCount": 0,
+ *   "affectedRows": 1,
+ *   "insertId": 32,
+ *   "serverStatus": 2,
+ *   "warningCount": 0,
+ *   "message": "",
+ *   "protocol41": true,
+ *   "changedRows": 0
+ * }
+ *
+ *
+ *  return value:
+ *  1, code
+ *  2, data
+ *
+ */
+function handleResult(result) {
+    let ret = {
+        code:201,
+        data:{'id':0}
+    };
+
+    let errno = result['errno'];
+
+    if (errno != "" && errno != undefined) {
+        ret.code = 401
+        ret.data = 'Malformed request'.toString();
+    } else {
+        ret.code = 201
+        let insertId = result['insertId'];
+        ret.data = {'id': insertId};
+    }
+
+    return ret;
 
 }
 
