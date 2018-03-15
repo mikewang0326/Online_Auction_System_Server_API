@@ -10,6 +10,8 @@ module.exports = function () {
 
     require('../app/routes/auctions.server.routes.js')(app);
 
+    require('../app/routes/database.server.routes.js')(app);
+
     return app;
 }
 
