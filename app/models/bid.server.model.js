@@ -13,6 +13,22 @@ const initSql = "CREATE TABLE bid (\n" +
     "  CONSTRAINT fk_bid_userid FOREIGN KEY (bid_userid) REFERENCES auction_user (user_id)\n" +
     ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
+const loadSampleSql = "INSERT INTO bid (\n" +
+    "  bid_userid,\n" +
+    "  bid_auctionid,\n" +
+    "  bid_amount,\n" +
+    "  bid_datetime)\n" +
+    "values\n" +
+    "('1', '1', '10.00', '2018-02-20 00:01:00'),\n" +
+    "('9', '3', '100.00', '2018-02-20 00:10:00'),\n" +
+    "('7', '3', '150.00', '2018-02-20 00:20:00'),\n" +
+    "('9', '3', '200.00', '2018-02-20 00:30:00'),\n" +
+    "('9', '3', '250.00', '2018-02-20 00:40:00'),\n" +
+    "('7', '3', '350.00', '2018-02-20 00:50:00'),\n" +
+    "('9', '3', '400.00', '2018-02-20 01:00:00'),\n" +
+    "('7', '4', '1000.00', '2018-02-20 01:00:00')\n" +
+    ";";
+
 exports.drop = function (done) {
     db.get_pool().query('DROP TABLE IF EXISTS bid', function (err, result) {
         if (err) {
@@ -25,6 +41,16 @@ exports.drop = function (done) {
 
 exports.init = function (done) {
     db.get_pool().query(initSql, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return loadSampleData(done)
+        }
+    });
+}
+
+function loadSampleData(done) {
+    db.get_pool().query(loadSampleSql, function (err, result) {
         if (err) {
             return done(err);
         } else {

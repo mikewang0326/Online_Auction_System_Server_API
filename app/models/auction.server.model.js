@@ -20,6 +20,24 @@ const initSql = "CREATE TABLE auction (\n" +
     "  CONSTRAINT fk_auction_category_id FOREIGN KEY (auction_categoryid) REFERENCES category (category_id)\n" +
     ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
 
+const loadSampleSql = "INSERT INTO auction (\n" +
+    "auction_title,\n" +
+    "auction_categoryid,\n" +
+    "auction_description,\n" +
+    "auction_reserveprice,\n" +
+    "auction_startingprice,\n" +
+    "auction_creationdate,\n" +
+    "auction_startingdate,\n" +
+    "auction_endingdate,\n" +
+    "auction_userid)\n" +
+    "VALUES\n" +
+    "('Super cape', '1', 'One slightly used cape', '10.00', '0.01', '2018-02-14 00:00:00', '2018-02-15 00:00:00', '2018-03-14 00:00:00', '2'),\n" +
+    "('Broken pyramid', '4', 'One very broken pyramid. No longer wanted. Buyer collect', '1000000.00', '1.00', '2018-02-14 00:00:00', '2018-02-15 00:00:00', '2018-02-28 00:00:00', '9'),\n" +
+    "('One boot', '1', 'One boot. Lost the other in a battle with the Joker', '10.00', '0.50', '2018-02-14 00:00:00', '2018-02-15 00:00:00', '2018-03-14 00:00:00', '3'),\n" +
+    "('Intrinsic Field Subtractor', '5', 'Hard to write about, but basically it changed me. A lot. ', '100.00', '1.00', '2018-02-14 00:00:00', '2018-02-15 00:00:00', '2018-06-30 00:00:00', '7'),\n" +
+    "('A cache of vibranium', '5', 'A cache of vibranium stolen from Wakanda. ', '500000.00', '10000.00', '2018-02-14 00:00:00', '2018-02-15 00:00:00', '2018-06-30 00:00:00', '10')\n" +
+    ";\n";
+
 exports.getList = function (req, done) {
 
     db.get_pool().query('SELECT * FROM auction', function (err, rows) {
@@ -99,6 +117,16 @@ exports.drop = function (done) {
 
 exports.init = function (done) {
     db.get_pool().query(initSql, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return loadSampleData(done);
+        }
+    });
+}
+
+function loadSampleData(done) {
+    db.get_pool().query(loadSampleSql, function (err, result) {
         if (err) {
             return done(err);
         } else {
