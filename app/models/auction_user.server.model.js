@@ -33,6 +33,62 @@ const loadSampleSql = "INSERT INTO auction_user (user_username, user_givenname, 
     "('power.woman', 'Jessica', 'Jones', 'power.woman@super.heroes', 'lukecage', '0.00' , '200')\n" +
     ";";
 
+exports.insert = function (values, done) {
+    db.get_pool().query('INSERT INTO auction_user (' + values[0] + ') VALUES (?)', values[1], function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result)
+        }
+    });
+
+    return null;
+}
+
+exports.alter = function (userId, fields, fieldsValues, done) {
+    let length = fields.length;
+
+    let sqlSetString = "";
+    for (let i=0; i<length; i++) {
+        let field = fields[i];
+        let fieldValue = fieldsValues[i];
+
+        if (i != length -1) {
+            sqlSetString = sqlSetString.concat(field).concat('=');
+            if (typeof fieldValue == "string") {
+                sqlSetString = sqlSetString.concat("'").concat(fieldValue).concat("',");
+            } else {
+                sqlSetString = sqlSetString.concat(fieldValue).concat(',');
+            }
+
+        } else {
+            sqlSetString = sqlSetString.concat(field).concat('=');
+
+            if (typeof fieldValue == "string"){
+                sqlSetString = sqlSetString.concat("'").concat(field).concat("'");
+            } else {
+                sqlSetString = sqlSetString.concat(fieldValue);
+            }
+
+        }
+    }
+
+    console.log("sqlSetString is :" + sqlSetString);
+
+    let values = [
+        [userId]
+    ];
+
+    db.get_pool().query('UPDATE auction_user SET ' + sqlSetString + ' where user_id = ?', values, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result)
+        }
+    });
+    return null;
+}
+
 exports.drop = function (done) {
     db.get_pool().query('DROP TABLE IF EXISTS auction_user', function (err, result) {
         if (err) {
@@ -59,6 +115,19 @@ function loadSampleData(done) {
             return done(err);
         } else {
             return done(result)
+        }
+    });
+}
+
+exports.getUserIdByToken = function (token, done) {
+    let values = [
+        [token]
+    ];
+    db.get_pool().query("SELECT user_id FROM auction_user where user_token = ?", values, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result);
         }
     });
 }
