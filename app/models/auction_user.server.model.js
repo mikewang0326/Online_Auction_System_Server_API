@@ -1,4 +1,5 @@
 const db = require('../../config/db')
+const sqlCreator = require('../utils/sql.creator');
 
 const createTableSql = "CREATE TABLE auction_user (\n" +
     "  user_id int(10) NOT NULL AUTO_INCREMENT,\n" +
@@ -46,32 +47,7 @@ exports.insert = function (values, done) {
 }
 
 exports.alter = function (userId, fields, fieldsValues, done) {
-    let length = fields.length;
-
-    let sqlSetString = "";
-    for (let i=0; i<length; i++) {
-        let field = fields[i];
-        let fieldValue = fieldsValues[i];
-
-        if (i != length -1) {
-            sqlSetString = sqlSetString.concat(field).concat('=');
-            if (typeof fieldValue == "string") {
-                sqlSetString = sqlSetString.concat("'").concat(fieldValue).concat("',");
-            } else {
-                sqlSetString = sqlSetString.concat(fieldValue).concat(',');
-            }
-
-        } else {
-            sqlSetString = sqlSetString.concat(field).concat('=');
-
-            if (typeof fieldValue == "string"){
-                sqlSetString = sqlSetString.concat("'").concat(field).concat("'");
-            } else {
-                sqlSetString = sqlSetString.concat(fieldValue);
-            }
-
-        }
-    }
+    let sqlSetString = sqlCreator.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
 
     console.log("sqlSetString is :" + sqlSetString);
 
