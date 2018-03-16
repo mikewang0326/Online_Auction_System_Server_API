@@ -1,5 +1,6 @@
 const User = require('../models/auction_user.server.model');
 const keyMapping = require('../../config/keymapping')
+const sqlCreator = require('../utils/sql.creator');
 
 exports.list = function (req, res) {
     User.getAll(function (result) {
@@ -68,7 +69,7 @@ exports.create = function (req, res) {
     ];
 
     User.insert(data, function (result) {
-        let ret = handleResult(result);
+        let ret = handleCreateResult(result);
         res.status(parseInt(ret['code']));
         res.json(ret['data']);
     })
@@ -78,7 +79,9 @@ exports.read = function (req, res) {
     let userId = req.params.userId;
     console.log("reading... userId : " + userId);
     User.getOne(userId, function (result) {
-        res.json(result);
+        let ret = handleReadResult(result)
+        res.status(parseInt(ret['code']));
+        res.json(ret['data']);
     });
 
 }
@@ -200,7 +203,7 @@ exports.logout = function (req, res) {
  *  2, data
  *
  */
-function handleResult(result) {
+function handleCreateResult(result) {
     let ret = {
         code:201,
         data:{'id':0}
@@ -221,4 +224,28 @@ function handleResult(result) {
 
 }
 
+
+function handleReadResult(result) {
+    let ret = {
+        code:200,
+        data:{'id':0}
+    };
+
+    if (!sqlCreator.isSqlResultOk(result) || sqlCreator.isSqlResultEmpty(result)) {
+        ret.code = 404;
+        ret.data = 'Not Found'.toString();
+    } else {
+        ret.code = 200;
+        ret.data = {
+            'username': result[0][keyMapping.requestKeyToMysqlKey("username")],
+            'givenName': result[0][keyMapping.requestKeyToMysqlKey("givenName")],
+            'familyName': result[0][keyMapping.requestKeyToMysqlKey("familyName")],
+            'email': result[0][keyMapping.requestKeyToMysqlKey("email")],
+            'accountBalance': result[0][keyMapping.requestKeyToMysqlKey("accountBalance")],
+        };
+    }
+
+    return ret;
+
+}
 

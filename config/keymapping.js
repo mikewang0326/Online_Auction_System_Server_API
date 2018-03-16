@@ -3,7 +3,8 @@ const requestKeyToMysqlKey = {
     givenName: "user_givenname",
     familyName: "user_familyname",
     email: "user_email",
-    password: "user_password"
+    password: "user_password",
+    accountBalance:"user_accountbalance"
 };
 
 exports.requestKeyToMysqlKey = function (requestKey, done) {

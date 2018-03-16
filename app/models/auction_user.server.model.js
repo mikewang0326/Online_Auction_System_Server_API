@@ -46,6 +46,17 @@ exports.insert = function (values, done) {
     return null;
 }
 
+exports.getOne = function (userId, done) {
+    db.get_pool().query('SELECT * FROM auction_user WHERE user_id = ?', userId, function (err, rows) {
+        if (err) {
+            return done(err);
+        } else {
+            done(rows);
+        }
+    });
+    return null;
+}
+
 exports.alter = function (userId, fields, fieldsValues, done) {
     let sqlSetString = sqlCreator.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
 
