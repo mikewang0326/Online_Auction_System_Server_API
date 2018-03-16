@@ -18,5 +18,5 @@ module.exports = function (app) {
         // Get user by user id
         .get(auctionUsers.read)
         // Change some selected information for a user
-        .post(auctionUsers.update);
+        .patch(auctionUsers.update);
 };

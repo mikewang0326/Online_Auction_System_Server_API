@@ -141,7 +141,9 @@ exports.update = function (req, res) {
     }
 
     User.alter(userId, fields, values, function (result) {
-        res.json(result);
+        let ret = handleUpdateResult(result);
+        res.status(ret['code']);
+        res.send(ret['data']);
     });
 }
 
@@ -248,4 +250,23 @@ function handleReadResult(result) {
     return ret;
 
 }
+
+function handleUpdateResult(result) {
+    let ret = {
+        code: 201,
+        data: {}
+    };
+
+    if (!sqlCreator.isSqlResultOk(result) || sqlCreator.isSqlResultEmpty(result)) {
+        ret.code = 401;
+        ret.data = 'Unauthorized';
+    } else {
+        ret.code = 201;
+        ret.data = 'ok'
+    }
+
+    return ret;
+
+}
+
 
