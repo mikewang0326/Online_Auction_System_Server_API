@@ -1,6 +1,6 @@
 const User = require('../models/auction_user.server.model');
 const keyMapping = require('../../config/keymapping')
-const sqlCreator = require('../utils/sql.creator');
+const sqlHelper = require('../utils/sql.helper');
 
 exports.list = function (req, res) {
     User.getAll(function (result) {
@@ -233,7 +233,7 @@ function handleReadResult(result) {
         data:{'id':0}
     };
 
-    if (!sqlCreator.isSqlResultOk(result) || sqlCreator.isSqlResultEmpty(result)) {
+    if (!sqlHelper.isSqlResultOk(result) || sqlHelper.isSqlResultEmpty(result)) {
         ret.code = 404;
         ret.data = 'Not Found'.toString();
     } else {
@@ -257,7 +257,7 @@ function handleUpdateResult(result) {
         data: {}
     };
 
-    if (!sqlCreator.isSqlResultOk(result) || sqlCreator.isSqlResultEmpty(result)) {
+    if (!sqlHelper.isSqlResultOk(result) || sqlHelper.isSqlResultEmpty(result)) {
         ret.code = 401;
         ret.data = 'Unauthorized';
     } else {

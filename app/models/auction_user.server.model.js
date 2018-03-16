@@ -1,5 +1,5 @@
 const db = require('../../config/db')
-const sqlCreator = require('../utils/sql.creator');
+const sqlCreator = require('../utils/sql.helper');
 
 const createTableSql = "CREATE TABLE auction_user (\n" +
     "  user_id int(10) NOT NULL AUTO_INCREMENT,\n" +
