@@ -12,11 +12,11 @@ module.exports = function (app) {
 
     app.route('/api/v1/users/logout')
         // Log out user session given by auth token in head
-        .post(auctionUsers.logout);
+        .post(auth.isAuthenticated, auctionUsers.logout);
 
     app.route('/api/v1/users/:userId')
         // Get user by user id
         .get(auctionUsers.read)
         // Change some selected information for a user
-        .patch(auctionUsers.update);
+        .patch(auth.isAuthenticated, auctionUsers.update);
 };
