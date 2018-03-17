@@ -1,6 +1,9 @@
 const User = require('../models/auction_user.server.model');
 const keyMapping = require('../../config/keymapping')
 const sqlHelper = require('../utils/sql.helper');
+const validator = require('validator');
+const middleware = require('../../config/middleware')
+const promise = require('promise')
 
 exports.list = function (req, res) {
     User.getAll(function (result) {
@@ -160,20 +163,89 @@ exports.userById = function (req, res) {
 }
 
 exports.login = function (req, res) {
-    let userId = req.params.userId;
-    console.log("reading... userId : " + userId);
-    User.getOne(userId, function (result) {
-        res.json(result);
-    });
+    let username = req.query.username;
+    let email = req.query.email;
+    let password = req.query.password;
+
+    let conditions = "";
+    if (username != undefined && !validator.isEmpty(username.toString())) {
+        conditions = keyMapping.requestKeyToMysqlKey('username').concat(" = \'").concat(username)
+            .concat("\' AND ").concat(keyMapping.requestKeyToMysqlKey('password')).concat(" = \'").concat(password)
+            .concat("\'");
+
+
+    } else {
+        conditions = keyMapping.requestKeyToMysqlKey('email').concat(" = \'").concat(email)
+            .concat("\' AND ").concat(keyMapping.requestKeyToMysqlKey('password')).concat(" = \'").concat(password)
+            .concat("\'");
+    }
+
+    let promise = new Promise(function(resolve, reject) {
+
+        User.getList(conditions, function (result) {
+            if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
+                return resolve(result[0]['user_id']);
+            } else {
+                res.status(400);
+                res.send("Invalid username/email/password supplied");
+                return reject();
+            }
+
+        });
+
+    }).then(function(userId) {
+        User.writeLoginAuthToken(userId, function (result, userId, token) {
+            if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
+                res.status(200);
+                res.json({
+                    "id":userId,
+                    "token":token
+                });
+            } else {
+                res.status(400);
+                res.send('Invalid username/email/password supplied');
+            }
+        });
+
+    }).catch(function (err) {
+        res.status(400);
+        res.send("Invalid username/email/password supplied");
+    })
 
 }
 
 exports.logout = function (req, res) {
-    let userId = req.params.userId;
-    console.log("reading... userId : " + userId);
-    User.getOne(userId, function (result) {
-        res.json(result);
-    });
+    let token = req.header("X-Authorization");
+
+    let promise = new Promise(function(resolve, reject) {
+
+        User.getUserIdByToken(token, function (result) {
+
+            if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
+                return resolve(result[0]['user_id']);
+            } else {
+                res.status(401);
+                res.send("Unauthorized");
+                return reject();
+            }
+        })
+
+    }).then(function(userId) {
+        User.clearLoginAuthToken(userId, function (result) {
+             if (!sqlHelper.isSqlResultEmpty(result)) {
+                 res.status(200);
+                 res.send("OK")
+             } else {
+                 res.status(401);
+                 res.send("Unauthorized");
+             }
+
+        });
+
+    }).catch(function (err) {
+           res.status(401);
+           res.send("Unauthorized");
+    })
 
 }
 
@@ -251,6 +323,23 @@ function handleReadResult(result) {
 
 }
 
+/**
+ *
+ [
+ {
+     "user_id": 2,
+     "user_username": "superman",
+     "user_givenname": "Clark",
+     "user_familyname": "Kent",
+     "user_email": "superman@super.heroes",
+     "user_password": "kryptonite",
+     "user_salt": null,
+     "user_token": "test",
+     "user_accountbalance": 0,
+     "user_reputation": 900
+ }
+ ]
+ */
 function handleUpdateResult(result) {
     let ret = {
         code: 201,
@@ -267,6 +356,66 @@ function handleUpdateResult(result) {
 
     return ret;
 
+}
+
+/**
+ *
+ * Login
+ *
+ * 1, get user_id by username + password or email + password
+ *
+ *
+[
+    {
+        "user_id": 2,
+        "user_username": "superman",
+        "user_givenname": "Clark",
+        "user_familyname": "Kent",
+        "user_email": "superman@super.heroes",
+        "user_password": "kryptonite",
+        "user_salt": null,
+        "user_token": null,
+        "user_accountbalance": 0,
+        "user_reputation": 900
+    }
+]
+ */
+function handleLoginResult(result) {
+    let ret = {
+        code: 200,
+        data: {
+            "id":0,
+            "token":"token"
+        }
+    };
+
+    if (!sqlHelper.isSqlResultOk(result) || sqlHelper.isSqlResultEmpty(result)) {
+        ret.code = 400;
+        ret.data = 'Invalid username/email/password supplied';
+    } else {
+        ret = authLogin(result[0]['user_id'])
+    }
+
+    return ret;
+}
+
+function authLogin(userId) {
+    User.writeLoginAuthToken(userId, function (result) {
+        let ret = handleUpdateResult(result);
+
+        if (ret['code'] == 201) {
+            ret.code = 200;
+            ret.data = {
+                "id": ret[0]['user_id'],
+                "token":ret[0]['user_token']
+            }
+        } else {
+            ret.code = 400;
+            ret.data = 'Invalid username/email/password supplied';
+        }
+
+        return ret;
+    });
 }
 
 

@@ -1,5 +1,6 @@
 const db = require('../../config/db')
-const sqlCreator = require('../utils/sql.helper');
+const sqlHelper = require('../utils/sql.helper');
+const cryptoHelper = require('../utils/crypto.helper');
 
 const createTableSql = "CREATE TABLE auction_user (\n" +
     "  user_id int(10) NOT NULL AUTO_INCREMENT,\n" +
@@ -57,8 +58,19 @@ exports.getOne = function (userId, done) {
     return null;
 }
 
+exports.getList = function (conditions, done) {
+    db.get_pool().query('SELECT * FROM auction_user WHERE ' + conditions, function (err, rows) {
+        if (err) {
+            return done(err);
+        } else {
+            done(rows);
+        }
+    });
+    return null;
+}
+
 exports.alter = function (userId, fields, fieldsValues, done) {
-    let sqlSetString = sqlCreator.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
+    let sqlSetString = sqlHelper.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
 
     console.log("sqlSetString is :" + sqlSetString);
 
@@ -67,6 +79,42 @@ exports.alter = function (userId, fields, fieldsValues, done) {
     ];
 
     db.get_pool().query('UPDATE auction_user SET ' + sqlSetString + ' where user_id = ?', values, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result)
+        }
+    });
+    return null;
+}
+
+exports.writeLoginAuthToken = function (userId, done) {
+    let token = cryptoHelper.createUserToken(userId).toString();
+    console.log("token is :" + token);
+
+    let values = [
+        [userId]
+    ];
+
+    let sql = "UPDATE auction_user SET user_token = \'" + token + "\' where user_id = " + parseInt(userId);
+
+    db.get_pool().query(sql, values, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result, userId, token)
+        }
+    });
+    return null;
+}
+
+exports.clearLoginAuthToken = function (userId, done) {
+
+    let values = [
+        [userId]
+    ];
+
+    db.get_pool().query('UPDATE auction_user SET ' + "user_token = \'\'" + ' where user_id = ?', values, function (err, result) {
         if (err) {
             return done(err);
         } else {
