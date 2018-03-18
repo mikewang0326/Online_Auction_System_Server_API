@@ -41,6 +41,17 @@ exports.savePhoto = function (req, auctionId, photoId, done) {
     done(ret, auctionId, photoId);
 }
 
+exports.deletePhotosForSpecificAuction = function (auctionId, done) {
+    let ret = false;
+    let auctionDir = exports.getPhotoDownloadDir(auctionId);
+
+    if (deleteDir(auctionDir)) {
+        ret = true;
+    }
+
+    done(ret);
+}
+
 
 function mkdirsSync(dirname) {
     if (fs.existsSync(dirname)) {
@@ -52,6 +63,26 @@ function mkdirsSync(dirname) {
         }
     }
 }
+
+function deleteDir(path) {
+    let ret = false;
+    var files = [];
+    if(fs.existsSync(path)) {
+        files = fs.readdirSync(path);
+        files.forEach(function(file, index) {
+            var curPath = path + "/" + file;
+            if(fs.statSync(curPath).isDirectory()) { // recurse
+                deleteall(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+        ret = true;
+    }
+
+    return ret;
+};
 
 
 

@@ -94,6 +94,17 @@ exports.getList = function (conditions, done) {
     return null;
 }
 
+exports.remove = function (auctionId, done) {
+    db.get_pool().query('DELETE FROM photo where photo_auctionid = ?', auctionId, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result)
+        }
+    });
+}
+
+
 function loadSampleData(done) {
     db.get_pool().query(loadSampleSql, function (err, result) {
         if (err) {

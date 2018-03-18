@@ -118,73 +118,59 @@ exports.read = function (req, res) {
 
 }
 
-exports.update = function (req, res) {
-    let userId = parseInt(req.params.userId);
-
-    let fields = new Array();
-    let values = new Array();
-
-
-    let username = req.body.username.toString();
-    let givenName = req.body.givenName.toString();
-    let familyName = req.body.familyName.toString();
-    let email = req.body.email.toString();
-    let password = req.body.password.toString();
-
-    if (username != "" && username != undefined) {
-        fields.push(keyMapping.requestKeyToMysqlKey("username"));
-        values.push(username);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
-    }
-
-    if (givenName != "" && givenName != undefined) {
-        fields.push(keyMapping.requestKeyToMysqlKey("givenName"));
-        values.push(username);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
-    }
-
-    if (familyName != "" && familyName != undefined) {
-        fields.push(keyMapping.requestKeyToMysqlKey("familyName"));
-        values.push(familyName);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
-    }
-
-    if (email != "" && email != undefined) {
-        fields.push(keyMapping.requestKeyToMysqlKey("email"));
-        values.push(email);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
-    }
-
-
-    if (password != "" && password != undefined) {
-        fields.push(keyMapping.requestKeyToMysqlKey("password"));
-        values.push(password);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
-    }
-
-    photo.alter(userId, fields, values, function (result) {
-        let ret = handleUpdateResult(result);
-        res.status(ret['code']);
-        res.send(ret['data']);
-    });
-}
-
 exports.delete = function (req, res) {
-    let userId = req.params.userId;
-    console.log("delete... userId : " + userId);
-    photo.remove(userId, function (result) {
-        res.json(result);
-    });
+    let auctionId = parseInt(req.params.auctionId);
+
+    new Promise(function(resolve, reject) {
+
+        photo.getPhotosByAuctionId(auctionId, function (result) {
+            if (sqlHelper.isSqlResultValid(result, auctionId)) {
+                return resolve(auctionId);
+            } else {
+                handleInvalidResult(res, result);
+                reject();
+            }
+        });
+
+    }).then(function(auctionId) {
+
+        return new Promise(function(resolve, reject) {
+            photo.remove(auctionId, function (result) {
+                if (sqlHelper.isSqlResultValid(result, auctionId)) {
+                    return resolve(auctionId);
+                } else {
+                    handleInvalidResult(res, result);
+                    reject();
+                }
+            });
+        });
+
+    }).then(function(auctionId) {
+
+        fileHelper.deletePhotosForSpecificAuction(auctionId, function (result) {
+            if (result) {
+                console.log("delete succeed")
+                res.status(201);
+                res.send('ok');
+            } else {
+                handleInvalidResult(res, null);
+            }
+        });
+
+    }).catch(function (err) {
+        // 201 ok
+        // 400 bad request
+        // 404 not found
+        // 405 inner error
+        if (err.code != 404 || err.code != 500) {
+            res.status(400);
+            res.send(err.message);
+        } else {
+            res.status(err.code);
+            res.send(err.message);
+        }
+    })
+
 }
 
 exports.userById = function (req, res) {
