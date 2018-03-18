@@ -20,7 +20,7 @@ exports.getUpdateSetStringByFieldsAndValues = function (fields, fieldsValues) {
             sqlSetString = sqlSetString.concat(field).concat('=');
 
             if (typeof fieldValue == "string"){
-                sqlSetString = sqlSetString.concat("'").concat(field).concat("'");
+                sqlSetString = sqlSetString.concat("'").concat(fieldValue).concat("'");
             } else {
                 sqlSetString = sqlSetString.concat(fieldValue);
             }
@@ -62,6 +62,11 @@ exports.getAndConditions = function (fields, fieldsValues) {
     }
 
     return sqlSetString;
+}
+
+exports.isSqlResultValid = function (result) {
+    let ret = exports.isSqlResultOk(result) && !exports.isSqlResultEmpty(result);
+    return ret;
 }
 
 /**
