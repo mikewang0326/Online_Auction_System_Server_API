@@ -72,6 +72,28 @@ exports.alter = function (photoId, fields, fieldsValues, done) {
     return null;
 }
 
+exports.getPhotosByAuctionId = function (auctionId, done) {
+    db.get_pool().query('SELECT * FROM photo WHERE photo_auctionid = ? AND photo_image_URI != \'\'', auctionId, function (err, rows) {
+        if (err) {
+            return done(err);
+        } else {
+            done(rows);
+        }
+    });
+    return null;
+}
+
+exports.getList = function (conditions, done) {
+    db.get_pool().query('SELECT * FROM photo WHERE ' + conditions, function (err, rows) {
+        if (err) {
+            return done(err);
+        } else {
+            done(rows);
+        }
+    });
+    return null;
+}
+
 function loadSampleData(done) {
     db.get_pool().query(loadSampleSql, function (err, result) {
         if (err) {

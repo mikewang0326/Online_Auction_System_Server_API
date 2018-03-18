@@ -105,12 +105,15 @@ exports.create = function (req, res) {
 }
 
 exports.read = function (req, res) {
-    let userId = req.params.userId;
-    console.log("reading... userId : " + userId);
-    photo.getOne(userId, function (result) {
-        let ret = handleReadResult(result)
-        res.status(parseInt(ret['code']));
-        res.json(ret['data']);
+    let auctionId = parseInt(req.params.auctionId);
+    photo.getPhotosByAuctionId(auctionId, function (result) {
+        if (sqlHelper.isSqlResultValid(result)) {
+            res.status(201);
+            res.send('ok');
+        } else {
+            handleInvalidResult(res, result)
+        }
+
     });
 
 }
@@ -317,21 +320,18 @@ function handleUpdateResult(result) {
     return ret;
 }
 
-
-
 function handleInvalidResult(res, result) {
 
-    if (sqlHelper.isSqlResultOk(result)) {
+    if (!sqlHelper.isSqlResultOk(result)) {
         res.status(500);
         res.send('Internal server error');
     } else if (sqlHelper.isSqlResultEmpty(result)) {
         res.status(404);
         res.send('Not found');
     } else {
-        res.status(404);
-        res.send('Not found');
+        res.status(400);
+        res.send('Bad request');
     }
-
 }
 
 
