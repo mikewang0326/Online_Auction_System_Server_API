@@ -93,7 +93,7 @@ exports.create = function (req, res) {
         // 400 bad request
         // 404 not found
         // 405 inner error
-        if (err.code != 404 || err.code != 500) {
+        if (err == undefined || err.code != 404 || err.code != 500) {
             res.status(400);
             res.send(err.message);
         } else {
@@ -162,7 +162,7 @@ exports.delete = function (req, res) {
         // 400 bad request
         // 404 not found
         // 405 inner error
-        if (err.code != 404 || err.code != 500) {
+        if (err == undefined ||err.code != 404 || err.code != 500) {
             res.status(400);
             res.send(err.message);
         } else {

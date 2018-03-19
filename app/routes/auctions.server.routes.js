@@ -24,7 +24,4 @@ module.exports = function (app) {
 
         // Make bid on auction
         .post(auction.makeBid);
-
-
-
 };

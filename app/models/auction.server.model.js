@@ -38,14 +38,23 @@ const loadSampleSql = "INSERT INTO auction (\n" +
     "('A cache of vibranium', '5', 'A cache of vibranium stolen from Wakanda. ', '500000.00', '10000.00', '2018-02-14 00:00:00', '2018-02-15 00:00:00', '2018-06-30 00:00:00', '10')\n" +
     ";\n";
 
-exports.getList = function (req, done) {
-
-    db.get_pool().query('SELECT * FROM auction', function (err, rows) {
+exports.getList = function (conditions, done) {
+    db.get_pool().query('SELECT * FROM auction_WHERE ' + conditions, function (err, rows) {
         if (err) {
-            console.log(err.message)
-            return done({"ERROR":"Error selecting"})
+            return done(err);
         } else {
-            return done(rows);
+            done(rows);
+        }
+    });
+    return null;
+}
+
+exports.getListBySql = function (sql, done) {
+    db.get_pool().query(sql, function (err, rows) {
+        if (err) {
+            return done(err);
+        } else {
+            done(rows);
         }
     });
     return null;
