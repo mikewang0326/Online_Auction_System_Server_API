@@ -44,6 +44,7 @@ exports.list = function (req, res) {
             data.push(item);
         }
 
+        res.status(200);
         res.json(data);
 
         }).catch(function (err) {
@@ -59,17 +60,6 @@ exports.list = function (req, res) {
             res.send(err.message);
         }
     })
-
-    // Auction.getListBySql(sql, function (result) {
-    //     res.json(result);
-    //     return;
-    //     if (sqlHelper.isSqlResultValid(result)) {
-    //         res.json(result);
-    //     } else {
-    //         handleInvalidResult(res, result);
-    //     }
-    //
-    // })
 }
 
 
@@ -82,9 +72,7 @@ exports.create = function (req, res) {
         'auction_startingdate':req.body.startDateTime,
         'auction_endingdate':req.body.endDateTime,
         'auction_reserveprice':req.body.reservePrice,
-
     };
-
 
     let values = [
         auction_data['auction_userid'],
@@ -97,7 +85,13 @@ exports.create = function (req, res) {
     ];
 
     Auction.insert(values, function (result) {
-        res.json(result);
+        if (sqlHelper.isSqlResultValid(result)) {
+            res.status(201);
+            res.json({'id': result['insertId']});
+        } else {
+            handleInvalidResult(result)
+        }
+
     })
 }
 

@@ -1,4 +1,5 @@
 const auction = require('../controllers/auction.server.controller')
+const auth = require('../../config/middleware');
 
 module.exports = function (app) {
 
@@ -7,7 +8,7 @@ module.exports = function (app) {
         .get(auction.list)
 
         // Create auction
-        .post(auction.create);
+        .post(auth.isAuthenticated, auction.create);
 
 
     app.route('/api/v1/auctions/:auctionId')
