@@ -1,4 +1,5 @@
-const db = require('../../config/db')
+const db = require('../../config/db');
+const sqlHelper = require('../utils/sql.helper');
 
 const initSql = "CREATE TABLE auction (\n" +
     "  auction_id int(10) NOT NULL AUTO_INCREMENT,\n" +
@@ -86,13 +87,17 @@ exports.insert = function (params, done) {
     return null;
 }
 
-exports.alter = function (userId, username, done) {
+exports.alter = function (auctionId, userId, fields, fieldsValues, done) {
+    let sqlSetString = sqlHelper.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
+
+    console.log("sqlSetString is :" + sqlSetString);
+
     let values = [
-        [username],
+        [auctionId],
         [userId]
     ];
 
-    db.get_pool().query('UPDATE auction SET username = ? where user_id = ?', values, function (err, result) {
+    db.get_pool().query('UPDATE auction SET ' + sqlSetString + ' where auction_id = ? AND auction_userid = ?', values, function (err, result) {
         if (err) {
             return done(err);
         } else {

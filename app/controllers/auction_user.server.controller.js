@@ -102,6 +102,7 @@ exports.update = function (req, res) {
     let email = req.body.email.toString();
     let password = req.body.password.toString();
 
+    // TODO 参数校验
     if (username != "" && username != undefined) {
         fields.push(keyMapping.requestKeyToMysqlKey("username"));
         values.push(username);

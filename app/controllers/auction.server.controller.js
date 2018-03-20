@@ -106,14 +106,6 @@ exports.read = function (req, res) {
     })
 }
 
-exports.update = function (req, res) {
-    let userId = req.params.userId;
-    let username = req.body.username.toString();
-    console.log("update... userId : " + userId);
-    Auction.alter(userId, username, function (result) {
-        res.json(result);
-    });
-}
 
 exports.delete = function (req, res) {
     let userId = req.params.userId;
@@ -154,6 +146,82 @@ exports.getBidHistory = function (req, res) {
         }
     })
 
+}
+
+exports.update = function (req, res) {
+    let auctionId = req.params.auctionId;
+    let token = req.header("X-Authorization");
+    let promise = new Promise(function(resolve, reject) {
+
+        auctionUser.getUserIdByToken(token, function (result) {
+
+            if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
+                let userId = result[0]['user_id'];
+                resolve(userId);
+            } else {
+                handleInvalidResult(res, null);
+                return reject();
+            }
+        })
+
+    }).then(function(userId) {
+        // according to auction_id and auction_
+        let auction_title = req.body.title.toString();
+        let auction_categoryid = parseInt(req.body.categoryId);
+        let auction_description = req.body.description.toString();
+        let auction_startingdate = req.body.startDateTime.toString();
+        let auction_endingdate = req.body.endDateTime.toString();
+        let auction_reserveprice = parseFloat(req.body.reservePrice);
+
+        let fields = new Array();
+        let values = new Array();
+
+
+
+        if (auction_title != "" && auction_title != undefined) {
+            fields.push('auction_title');
+            values.push(auction_title);
+        }
+
+        if (auction_categoryid != "" && auction_categoryid != undefined) {
+            fields.push('auction_categoryid');
+            values.push(auction_categoryid);
+        }
+
+        if (auction_description != "" && auction_description != undefined) {
+            fields.push('auction_description');
+            values.push(auction_description);
+        }
+
+        if (auction_startingdate != "" && auction_startingdate != undefined) {
+            fields.push('auction_startingdate');
+            values.push(auction_startingdate);
+        }
+
+        if (auction_endingdate != "" && auction_endingdate != undefined) {
+            fields.push('auction_endingdate');
+            values.push(auction_endingdate);
+        }
+
+        if (auction_reserveprice != "" && auction_reserveprice != undefined) {
+            fields.push('auction_reserveprice');
+            values.push(auction_reserveprice);
+        }
+
+
+        Auction.alter(auctionId, userId, fields, values, function (result) {
+            if (sqlHelper.isSqlResultValid(result)) {
+                res.status(201);
+                res.send('');
+            } else {
+                handleInvalidResult(res, result);
+            }
+        });
+
+    }).catch(function (err) {
+        res.status(400);
+        res.send('Bad request');
+    })
 }
 
 exports.makeBid = function (req, res) {

@@ -16,7 +16,7 @@ module.exports = function (app) {
         .get(auction.read)
 
         // Change some selected information for an Auction
-        .patch(auction.update);
+        .patch(auth.isAuthenticated, auction.update);
 
 
     app.route('/api/v1/auctions/:auctionId/bids')
