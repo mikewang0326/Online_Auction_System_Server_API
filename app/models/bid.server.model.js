@@ -49,6 +49,31 @@ exports.init = function (done) {
     });
 }
 
+exports.getOne = function (userId, done) {
+    db.get_pool().query('SELECT * FROM bid WHERE bid_id = ?', userId, function (err, rows) {
+        if (err) {
+            return done(err);
+        } else {
+            done(rows);
+        }
+    });
+    return null;
+}
+
+exports.insert = function (params, done) {
+    let values = [params];
+
+    db.get_pool().query('INSERT INTO bid (bid_auctionid, bid_userid, bid_amount, bid_datetime) VALUES (?)', values, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result)
+        }
+    });
+
+    return null;
+}
+
 function loadSampleData(done) {
     db.get_pool().query(loadSampleSql, function (err, result) {
         if (err) {

@@ -24,5 +24,7 @@ module.exports = function (app) {
         .get(auction.getBidHistory)
 
         // Make bid on auction
-        .post(auction.makeBid);
+        .post(auth.isAuthenticated, auction.makeBid);
+
+    //TODO 参数校验
 };

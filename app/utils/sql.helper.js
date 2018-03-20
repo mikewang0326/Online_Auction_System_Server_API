@@ -124,6 +124,17 @@ exports.getSearchBidsFromAuctionIdSql = function(auctionId) {
     return sql;
 }
 
+exports.getAuctionInfoForOneBid = function (auctionId) {
+    let sql = 'SELECT a.auction_userid, b.bid_auctionid, Max(b.bid_amount), a.auction_endingdate, b.bid_userid, b.bid_id, b.bid_datetime,au.user_username\n' +
+        'From bid b\n' +
+        'RIGHT JOIN auction a ON a.auction_id = b.bid_auctionid\n' +
+        'LEFT JOIN auction_user au ON au.user_id = b.bid_userid\n' +
+        'WHERE b.bid_auctionid = ' + auctionId + '\n' +
+        'ORDER BY b.bid_datetime desc'
+
+    return sql;
+}
+
 
 exports.getUpdateSetStringByFieldsAndValues = function (fields, fieldsValues) {
 
