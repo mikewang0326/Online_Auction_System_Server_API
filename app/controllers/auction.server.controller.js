@@ -126,11 +126,31 @@ exports.userById = function (req, res) {
 }
 
 exports.getBidHistory = function (req, res) {
-    let userId = req.params.userId;
-    console.log("reading... userId : " + userId);
-    Auction.getOne(userId, function (result) {
-        res.json(result);
-    });
+    let auctionId = req.params.auctionId;
+    let sql = sqlHelper.getSearchBidsFromAuctionIdSql(auctionId);
+    new Promise(function (resolve, reject) {
+
+        Auction.getListBySql(sql, function (result) {
+            if (sqlHelper.isSqlResultValid(result)) {
+                res.status(200);
+                res.json(response.createAuctionBidsData(result));
+            } else {
+                handleInvalidResult(res, result);
+                reject();
+            }
+
+        })
+
+    }).catch(function (err) {
+
+        if (err == undefined || err.code != 404 || err.code != 500) {
+            res.status(400);
+            res.send(err.message);
+        } else {
+            res.status(err.code);
+            res.send(err.message);
+        }
+    })
 
 }
 
