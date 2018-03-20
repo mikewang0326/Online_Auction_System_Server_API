@@ -38,8 +38,8 @@ exports.getAuctionSearchSqlFromRequest = function (req) {
         "    distinct a.auction_id, c.category_title, a.auction_categoryid, a.auction_title, a.auction_reserveprice, a.auction_startingdate, a.auction_endingdate\n" +
         "FROM\n" +
         "    auction a\n" +
-        "INNER JOIN category c ON a.auction_categoryid = c.category_id\n" +
-        "INNER JOIN bid b ON a.auction_id = b.bid_auctionid";
+        "LEFT JOIN category c ON a.auction_categoryid = c.category_id\n" +
+        "LEFT JOIN bid b ON a.auction_id = b.bid_auctionid";
 
     sqlClauses.push(basicSearchSql);
 
@@ -93,6 +93,33 @@ exports.getAuctionSearchSqlFromRequest = function (req) {
     }
 
     let sql = sqlClauses.join(' ');
+
+    return sql;
+}
+
+exports.getOneAuctionSql = function (auctionId) {
+    let sql =
+    'SELECT\n' +
+    '    distinct a.auction_id, c.category_title, a.auction_title, a.auction_reserveprice, a.auction_startingdate, a.auction_endingdate, a.auction_description, a.auction_creationdate, a.auction_userid, au.user_username\n' +
+    'FROM\n' +
+    '    auction a\n' +
+    'LEFT JOIN category c ON a.auction_categoryid = c.category_id\n' +
+    'LEFT JOIN auction_user au ON a.auction_userid = au.user_id\n' +
+    'LEFT JOIN bid b ON a.auction_id = b.bid_auctionid\n' +
+    'WHERE\n' +
+    '    a.auction_id = '+ auctionId + ' order by a.auction_creationdate desc;'
+
+    return sql;
+}
+
+
+exports.getSearchBidsFromAuctionIdSql = function(auctionId) {
+    let sql = 'SELECT b.bid_auctionid, b.bid_amount, b.bid_datetime, b.bid_userid, b.bid_id,au.user_username\n' +
+        'From bid b\n' +
+        'RIGHT JOIN auction a ON a.auction_id = b.bid_auctionid\n' +
+        'LEFT JOIN auction_user au ON au.user_id = b.bid_userid\n' +
+        'WHERE b.bid_auctionid = ' + auctionId + '\n' +
+        'ORDER BY b.bid_datetime desc'
 
     return sql;
 }

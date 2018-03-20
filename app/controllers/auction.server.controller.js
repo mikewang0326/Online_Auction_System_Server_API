@@ -1,10 +1,11 @@
 const Auction = require('../models/auction.server.model');
+const response = require('../response/auctions.response');
 const sqlHelper = require('../utils/sql.helper');
 
 exports.list = function (req, res) {
     let sql = sqlHelper.getAuctionSearchSqlFromRequest(req);
 
-    new Promise(function(resolve, reject) {
+    new Promise(function (resolve, reject) {
 
         Auction.getListBySql(sql, function (result) {
             if (sqlHelper.isSqlResultValid(result)) {
@@ -16,42 +17,12 @@ exports.list = function (req, res) {
 
         })
 
-    }).then(function(result) {
-        // get currentBid select bid_id, bid_datetime from bid where bid_auctionid = 3 order by bid_datetime desc limit 1;
-
-        // 1, get all auctionid
-
-        // 2, search latest bid
-
-        // 3, combine data
-
-        let data = Array();
-
-        let length = result.length;
-
-        for (let i=0; i< length; i++) {
-            let item = {
-                'id':result[i]['auction_id'],
-                'categoryTitle':result[i]['auction_title'],
-                'categoryId':result[i]['auction_categoryid'],
-                'title':result[i]['auction_description'],
-                'reservePrice':result[i]['auction_reserveprice'],
-                'startDateTime':result[i]['auction_startingdate'],
-                'endDateTime':result[i]['auction_endingdate'],
-                'currentBid':'3'
-            }
-
-            data.push(item);
-        }
-
+    }).then(function (result) {
         res.status(200);
-        res.json(data);
+        res.json(response.createListData(result));
 
-        }).catch(function (err) {
-        // 200 ok
-        // 400 bad request
-        // 404 not found
-        // 500 inner error
+    }).catch(function (err) {
+
         if (err == undefined || err.code != 404 || err.code != 500) {
             res.status(400);
             res.send(err.message);
@@ -98,10 +69,39 @@ exports.create = function (req, res) {
 exports.read = function (req, res) {
     let auctionId = req.params.auctionId;
     console.log("reading... auctionId : " + auctionId);
-    Auction.getOne(auctionId, function (result) {
-        res.status(200).json(result);
-    });
 
+    let sql = sqlHelper.getOneAuctionSql(auctionId);
+    new Promise(function (resolve, reject) {
+
+        Auction.getListBySql(sql, function (result) {
+            if (sqlHelper.isSqlResultValid(result)) {
+                return resolve(result);
+            } else {
+                handleInvalidResult(res, result);
+                reject();
+            }
+
+        })
+
+    }).then(function (firstResult) {
+        let auctionId = firstResult[0]['auction_id'];
+        let sql = sqlHelper.getSearchBidsFromAuctionIdSql(auctionId);
+        Auction.getListBySql(sql, function (secondResult) {
+            res.status(200);
+            res.json(response.creatOneAuctionData(firstResult, secondResult));
+        })
+
+
+    }).catch(function (err) {
+
+        if (err == undefined || err.code != 404 || err.code != 500) {
+            res.status(400);
+            res.send(err.message);
+        } else {
+            res.status(err.code);
+            res.send(err.message);
+        }
+    })
 }
 
 exports.update = function (req, res) {
