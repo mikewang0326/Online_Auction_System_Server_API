@@ -106,15 +106,38 @@ exports.create = function (req, res) {
 
 exports.read = function (req, res) {
     let auctionId = parseInt(req.params.auctionId);
-    photo.getPhotosByAuctionId(auctionId, function (result) {
-        if (sqlHelper.isSqlResultValid(result)) {
-            res.status(201);
-            res.send('ok');
-        } else {
-            handleInvalidResult(res, result)
-        }
 
-    });
+    new Promise(function (resolve, reject) {
+
+        photo.getPhotosByAuctionId(auctionId, function (result) {
+            if (sqlHelper.isSqlResultValid(result)) {
+                let imagePath = result[0]['photo_image_URI'];
+                return resolve(imagePath);
+            } else {
+                handleInvalidResult(res, result);
+                reject();
+            }
+
+        });
+
+
+    }).then(function (imagePath) {
+
+        loadImage(res, imagePath);
+
+    }).catch(function (err) {
+        // 201 ok
+        // 400 bad request
+        // 404 not found
+        // 405 inner error
+        if (err == undefined || err.code != 404 || err.code != 500) {
+            res.status(400);
+            res.send(err.message);
+        } else {
+            res.status(err.code);
+            res.send(err.message);
+        }
+    })
 
 }
 
@@ -320,5 +343,17 @@ function handleInvalidResult(res, result) {
     }
 }
 
+
+function loadImage(res, path) {
+    fs.readFile(path, 'binary', function (err, file) {
+        if (err) {
+           handleInvalidResult(res, null);
+        } else {
+            res.status(200);
+            res.write(file, 'binary');
+            res.end();
+        }
+    });
+}
 
 
