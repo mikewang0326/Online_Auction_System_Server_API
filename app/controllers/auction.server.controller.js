@@ -74,7 +74,7 @@ exports.create = function (req, res) {
             res.status(201);
             res.json({'id': result['insertId']});
         } else {
-            handleInvalidResult(result)
+            return res.sendStatus(500);
         }
 
     })
@@ -107,14 +107,7 @@ exports.read = function (req, res) {
 
 
     }).catch(function (err) {
-
-        if (err == undefined || err.code != 404 || err.code != 500) {
-            res.status(400);
-            res.send(err.message);
-        } else {
-            res.status(err.code);
-            res.send(err.message);
-        }
+        handleInvalidResult(res, null);
     })
 }
 
@@ -346,16 +339,13 @@ function isBidderNotSeller(userId, result) {
 
 function handleInvalidResult(res, result) {
     if (!sqlHelper.isSqlResultOk(result)) {
-        res.status(500);
-        res.send('Internal server error');
-        return res;
+        return res.status(500).send('Internal server error');
     } else if (sqlHelper.isSqlResultEmpty(result)) {
-        res.status(404);
-        res.send('Not found');
+        return res.status(404).send('Not found');
     } else {
-        res.status(400);
-        res.send('Bad request');
+        return res.status(500).send('Internal server error');
     }
 }
+
 
 

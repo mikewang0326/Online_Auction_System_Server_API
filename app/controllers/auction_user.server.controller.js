@@ -43,28 +43,28 @@ exports.create = function (req, res) {
         fields.push(keyMapping.requestKeyToMysqlKey("username"));
         values.push(username.toString());
     } else {
-        res.sendStatus(400);
+        return res.sendStatus(400);
     }
 
     if (givenName != undefined && !validator.isEmpty(givenName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("givenName"));
         values.push(givenName.toString());
     } else {
-        res.sendStatus(400);
+        return res.sendStatus(400);
     }
 
     if (familyName != undefined && !validator.isEmpty(familyName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("familyName"));
         values.push(familyName.toString());
     }else {
-        res.sendStatus(400);
+        return res.sendStatus(400);
     }
 
     if (email != undefined && !validator.isEmpty(email.toString()) && validator.isEmail(email)) {
         fields.push(keyMapping.requestKeyToMysqlKey("email"));
         values.push(email.toString());
     }else {
-        res.sendStatus(400);
+        return res.sendStatus(400);
     }
 
 
@@ -72,12 +72,9 @@ exports.create = function (req, res) {
         fields.push(keyMapping.requestKeyToMysqlKey("password"));
         values.push(password);
     }else {
-        res.sendStatus(400);
+        return res.sendStatus(400);
     }
 
-    if (fields.length < 5) {
-        res.sendStatus(400);
-    }
 
     let data = [
         [fields.toString()],
@@ -98,6 +95,7 @@ exports.create = function (req, res) {
 exports.read = function (req, res) {
     let userId = req.params.userId;
     console.log("reading... userId : " + userId);
+
     User.getOne(userId, function (result) {
         let ret = handleReadResult(result)
         res.status(parseInt(ret['code']));
@@ -186,7 +184,7 @@ exports.login = function (req, res) {
     let password = req.query.password;
 
     // parameter check
-    if ((undefined == username || validator.isEmpty(username.toString())) && (undefined == email || validator.isEmpty(email.toString()) || validator.isEmail(email.toString()))) {
+    if ((undefined == username || validator.isEmpty(username.toString())) && (undefined == email || validator.isEmpty(email.toString()) || !validator.isEmail(email.toString()))) {
         return res.sendStatus(400);
     } else if (undefined == password || validator.isEmpty(password)) {
         return res.sendStatus(400);
@@ -212,9 +210,7 @@ exports.login = function (req, res) {
             if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
                 return resolve(result[0]['user_id']);
             } else {
-                res.status(500);
-                res.send("Internal server error");
-                return res;
+                handleInvalidLoginResult(res, result);
             }
 
         });
@@ -255,19 +251,15 @@ exports.logout = function (req, res) {
     }).then(function(userId) {
         User.clearLoginAuthToken(userId, function (result) {
              if (!sqlHelper.isSqlResultEmpty(result)) {
-                 res.status(200);
-                 res.send("OK")
+                 return res.status(200).send("OK")
              } else {
-                 res.status(401);
-                 res.send("Unauthorized");
-                 return res;
+                 return res.sendStatus(500)
              }
 
         });
 
     }).catch(function (err) {
-           res.status(401);
-           res.send("Unauthorized");
+           return res.sendStatus(500);
     })
 
 }
@@ -458,6 +450,14 @@ function handleInvalidCreateResult(res, result) {
     } else if (sqlHelper.isSqlResultEmpty(result)) {
         return res.sendStatus(500);
     } else {
+        return res.sendStatus(500);
+    }
+}
+
+function handleInvalidLoginResult(res, result) {
+    if (sqlHelper.isSqlResultEmpty(result)) {
+        return res.status(400).send('Invalid username/email/password supplied');
+    }  else {
         return res.sendStatus(500);
     }
 }
