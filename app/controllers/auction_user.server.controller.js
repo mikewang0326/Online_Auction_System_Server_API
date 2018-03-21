@@ -185,6 +185,14 @@ exports.login = function (req, res) {
     let email = req.query.email;
     let password = req.query.password;
 
+    // parameter check
+    if ((undefined == username || validator.isEmpty(username.toString())) && (undefined == email || validator.isEmpty(email.toString()) || validator.isEmail(email.toString()))) {
+        return res.sendStatus(400);
+    } else if (undefined == password || validator.isEmpty(password)) {
+        return res.sendStatus(400);
+
+    }
+
     let conditions = "";
     if (username != undefined && !validator.isEmpty(username.toString())) {
         conditions = keyMapping.requestKeyToMysqlKey('username').concat(" = \'").concat(username)
@@ -204,9 +212,9 @@ exports.login = function (req, res) {
             if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
                 return resolve(result[0]['user_id']);
             } else {
-                res.status(400);
-                res.send("Invalid username/email/password supplied");
-                return reject();
+                res.status(500);
+                res.send("Internal server error");
+                return res;
             }
 
         });
@@ -220,14 +228,12 @@ exports.login = function (req, res) {
                     "token":token
                 });
             } else {
-                res.status(400);
-                res.send('Invalid username/email/password supplied');
+
             }
         });
 
     }).catch(function (err) {
-        res.status(400);
-        res.send("Invalid username/email/password supplied");
+        return res.status(500).send("Internal server error");
     })
 
 }
@@ -242,9 +248,7 @@ exports.logout = function (req, res) {
             if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
                 return resolve(result[0]['user_id']);
             } else {
-                res.status(401);
-                res.send("Unauthorized");
-                return reject();
+                return res.sendStatus(401);
             }
         })
 
@@ -256,6 +260,7 @@ exports.logout = function (req, res) {
              } else {
                  res.status(401);
                  res.send("Unauthorized");
+                 return res;
              }
 
         });
@@ -439,14 +444,11 @@ function authLogin(userId) {
 
 function handleInvalidResult(res, result) {
     if (!sqlHelper.isSqlResultOk(result)) {
-        res.status(500);
-        res.send('Internal server error');
+        return res.status(500).send('Internal server error');
     } else if (sqlHelper.isSqlResultEmpty(result)) {
-        res.status(404);
-        res.send('Not found');
+        return res.sendStatus(500);
     } else {
-        res.status(500);
-        res.send('Bad request');
+        return res.sendStatus(500);
     }
 }
 
