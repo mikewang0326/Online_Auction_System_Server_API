@@ -36,8 +36,8 @@ exports.creatOneAuctionData = function (result1, result2) {
     if (sqlHelper.isSqlResultValid(result2)) {
         let bids = exports.createAuctionBidsData(result2);
         data['bids'] = bids;
-        data['startingBid'] = result2[bids.length - 1]['bid_id'];
-        data['currentBid'] = result2[0]['bid_id'];
+        data['startingBid'] = result2[bids.length - 1]['bid_amount'];
+        data['currentBid'] = result2[0]['bid_amount'];
     }
 
     return data;
