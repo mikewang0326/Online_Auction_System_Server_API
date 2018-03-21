@@ -39,28 +39,28 @@ exports.create = function (req, res) {
      *
      */
 
-    if (username != undefined && username.toString() != "") {
+    if (username != undefined && !validator.isEmpty(username.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("username"));
         values.push(username.toString());
     } else {
         res.sendStatus(400);
     }
 
-    if (givenName != undefined && givenName.toString() != "") {
+    if (givenName != undefined && !validator.isEmpty(givenName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("givenName"));
         values.push(givenName.toString());
     } else {
         res.sendStatus(400);
     }
 
-    if (familyName != undefined && familyName.toString() != "") {
+    if (familyName != undefined && !validator.isEmpty(familyName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("familyName"));
         values.push(familyName.toString());
     }else {
         res.sendStatus(400);
     }
 
-    if (email != undefined && email.toString() != "" && validator.isEmail(email)) {
+    if (email != undefined && !validator.isEmpty(email.toString()) && validator.isEmail(email)) {
         fields.push(keyMapping.requestKeyToMysqlKey("email"));
         values.push(email.toString());
     }else {
@@ -68,7 +68,7 @@ exports.create = function (req, res) {
     }
 
 
-    if (password != undefined && password != "") {
+    if (password != undefined && !validator.isEmpty(password)) {
         fields.push(keyMapping.requestKeyToMysqlKey("password"));
         values.push(password);
     }else {
@@ -90,7 +90,7 @@ exports.create = function (req, res) {
               res.status(201);
               res.json({'id':result['insertId']})
         } else {
-            handleInvalidResult(res, result);
+            handleInvalidCreateResult(res, result);
         }
     })
 }
@@ -451,5 +451,17 @@ function handleInvalidResult(res, result) {
         return res.sendStatus(500);
     }
 }
+
+function handleInvalidCreateResult(res, result) {
+    if (!sqlHelper.isSqlResultOk(result)) {
+        return res.status(400).send('Invalid username/email/password supplied');
+    } else if (sqlHelper.isSqlResultEmpty(result)) {
+        return res.sendStatus(500);
+    } else {
+        return res.sendStatus(500);
+    }
+}
+
+
 
 

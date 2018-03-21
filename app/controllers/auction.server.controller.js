@@ -15,7 +15,7 @@ exports.list = function (req, res) {
             if (sqlHelper.isSqlResultValid(result)) {
                 return resolve(result);
             } else {
-                handleInvalidResult(res, result);
+                return  res.status(500).send();
                 reject();
             }
 
@@ -27,13 +27,7 @@ exports.list = function (req, res) {
 
     }).catch(function (err) {
 
-        if (err == undefined || err.code != 404 || err.code != 500) {
-            res.status(400);
-            res.send(err.message);
-        } else {
-            res.status(err.code);
-            res.send(err.message);
-        }
+        return res.status(500).send();
     })
 }
 
@@ -354,6 +348,7 @@ function handleInvalidResult(res, result) {
     if (!sqlHelper.isSqlResultOk(result)) {
         res.status(500);
         res.send('Internal server error');
+        return res;
     } else if (sqlHelper.isSqlResultEmpty(result)) {
         res.status(404);
         res.send('Not found');
