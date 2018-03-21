@@ -3,6 +3,9 @@ const Photo = require('../models/photo.server.model');
 const Auction = require('../models/auction.server.model');
 const Category = require('../models/category.server.model');
 const AuctionUser = require('../models/auction_user.server.model');
+const db = require('../models/database.server.model');
+const fs = require('fs');
+const sqlHelper = require('../utils/sql.helper');
 
 exports.list = function (req, res) {
     Auction.getList(req, function (result) {
@@ -96,27 +99,15 @@ exports.makeBid = function (req, res) {
  */
 
 exports.reset = function (req, res) {
-    console.log("reset database ...");
-    Bid.drop(function (result) {
-        console.log("reset database bid...");
-    });
+    let sql = fs.readFileSync('./config/reset.sql').toString();
 
-    Photo.drop(function (result) {
-        console.log("reset database photo...");
-    });
-
-    Auction.drop(function (result) {
-        console.log("reset database auction...");
-    });
-
-    Category.drop(function (result) {
-        console.log("reset database category...");
-    });
-
-    AuctionUser.drop(function (result) {
-        console.log("reset database auction_user...");
-        res.json(result);
-    });
+    db.reset(sql.toString(), function (result) {
+        if (sqlHelper.isSqlResultValid(result)) {
+            res.sendStatus(200);
+        } else {
+            handleInvalidResult(res, result);
+        }
+    })
 
 }
 
@@ -128,29 +119,25 @@ exports.reset = function (req, res) {
  *
  */
 exports.resample = function (req, res) {
-    console.log("resample database ...");
+    let sql = fs.readFileSync('./config/resample.sql').toString();
 
-    AuctionUser.init(function (result) {
-        console.log("init database auction_user...");
-        res.json(result);
-    });
+    db.resample(sql.toString(), function (result) {
+        if (sqlHelper.isSqlResultValid(result)) {
+            res.sendStatus(200);
+        } else {
+            handleInvalidResult(res, result);
+        }
+    })
+}
 
-    Category.init(function (result) {
-        console.log("init database category...");
-    });
-
-    Auction.init(function (result) {
-        console.log("init database auction...");
-    });
-
-    Photo.init(function (result) {
-        console.log("init database photo...");
-    });
-
-    Bid.init(function (result) {
-        console.log("init database bid...");
-    });
-
+function handleInvalidResult(res, result) {
+    if (!sqlHelper.isSqlResultOk(result)) {
+        res.sendStatus(500);
+    } else if (sqlHelper.isSqlResultEmpty(result)) {
+        res.sendStatus(400);
+    } else {
+        res.sendStatus(400);
+    }
 }
 
 
