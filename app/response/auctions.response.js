@@ -1,4 +1,5 @@
 const sqlHelper = require('../utils/sql.helper');
+const timeHelper = require('../utils/time.helper');
 exports.createListData = function (result) {
     // get currentBid select bid_id, bid_datetime from bid where bid_auctionid = 3 order by bid_datetime desc limit 1;
 
@@ -17,8 +18,8 @@ exports.createListData = function (result) {
             'categoryId':result[i]['auction_categoryid'],
             'title':result[i]['auction_description'],
             'reservePrice':result[i]['auction_reserveprice'],
-            'startDateTime':result[i]['auction_startingdate'],
-            'endDateTime':result[i]['auction_endingdate'],
+            'startDateTime':timeHelper.convertFormattedTimeToMillseconds(result[i]['auction_startingdate']),
+            'endDateTime':timeHelper.convertFormattedTimeToMillseconds(result[i]['auction_endingdate']),
             'currentBid':'3'
         }
 
@@ -48,10 +49,10 @@ exports.createOneBasicAuctionData = function (result) {
         'categoryTitle': result[0]['auction_title'],
         'title': result[0]['auction_description'],
         'reservePrice': result[0]['auction_reserveprice'],
-        'startDateTime': result[0]['auction_startingdate'],
-        'endDateTime': result[0]['auction_endingdate'],
+        'startDateTime': timeHelper.convertFormattedTimeToMillseconds(result[0]['auction_startingdate']),
+        'endDateTime': timeHelper.convertFormattedTimeToMillseconds(result[0]['auction_endingdate']),
         'description': result[0]['auction_description'],
-        'creationDateTime': result[0]['auction_creationdate'],
+        'creationDateTime': timeHelper.convertFormattedTimeToMillseconds(result[0]['auction_creationdate']),
         'startingBid': 0,
         'currentBid': 1,
         'seller': {
@@ -69,7 +70,7 @@ exports.createAuctionBidsData = function (result) {
     for (let i=0; i< length; i++) {
         let item = {
             'amount':result[i]['bid_amount'],
-            'datetime':result[i]['bid_datetime'],
+            'datetime':timeHelper.convertFormattedTimeToMillseconds(result[i]['bid_datetime']),
             'buyerId':result[i]['bid_userid'],
             'buyerUsername':result[i]['user_username'],
         }

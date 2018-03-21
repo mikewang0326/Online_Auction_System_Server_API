@@ -16,7 +16,7 @@ module.exports = function (app) {
 
     app.route('/api/v1/users/:userId')
         // Get user by user id
-        .get(auctionUsers.read)
+        .get(auth.isAuthenticated, auctionUsers.read)
         // Change some selected information for a user
         .patch(auth.isAuthenticated, auctionUsers.update);
 };

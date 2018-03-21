@@ -3,6 +3,8 @@ const bid = require('../models/bid.server.model');
 const auctionUser = require('../models/auction_user.server.model')
 const response = require('../response/auctions.response');
 const sqlHelper = require('../utils/sql.helper');
+const timeHelper = require('../utils/time.helper');
+const nodeDate = require('node-datetime');
 
 exports.list = function (req, res) {
     let sql = sqlHelper.getAuctionSearchSqlFromRequest(req);
@@ -37,13 +39,26 @@ exports.list = function (req, res) {
 
 
 exports.create = function (req, res) {
+
+    let formattedCreationDate = timeHelper.convertMillsecondsToFormattedTime(new Date().getTime());
+
+    let startDateTime = parseInt(req.body.startDateTime);
+    let formattedStartDateTime = timeHelper.convertMillsecondsToFormattedTime(startDateTime);
+
+    let endDateTime = parseInt(req.body.endDateTime);
+    let formattedEndingDate = timeHelper.convertMillsecondsToFormattedTime(endDateTime);
+
+
     let auction_data = {
         'auction_userid':req.body.userId,
         'auction_title':req.body.title,
         'auction_categoryid':req.body.categoryId,
+
         'auction_description':req.body.description,
-        'auction_startingdate':req.body.startDateTime,
-        'auction_endingdate':req.body.endDateTime,
+        'auction_creationdate':formattedCreationDate,
+        'auction_startingdate':formattedStartDateTime,
+
+        'auction_endingdate':formattedEndingDate,
         'auction_reserveprice':req.body.reservePrice,
     };
 
@@ -51,8 +66,11 @@ exports.create = function (req, res) {
         auction_data['auction_userid'],
         auction_data['auction_title'],
         auction_data['auction_categoryid'],
+
         auction_data['auction_description'],
+        auction_data['auction_creationdate'],
         auction_data['auction_startingdate'],
+
         auction_data['auction_endingdate'],
         auction_data['auction_reserveprice']
     ];
@@ -151,6 +169,7 @@ exports.getBidHistory = function (req, res) {
 exports.update = function (req, res) {
     let auctionId = req.params.auctionId;
     let token = req.header("X-Authorization");
+
     let promise = new Promise(function(resolve, reject) {
 
         auctionUser.getUserIdByToken(token, function (result) {

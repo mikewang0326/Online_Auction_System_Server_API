@@ -76,7 +76,7 @@ exports.insert = function (params, done) {
     let values = [params];
 
     db.get_pool().query('INSERT INTO auction (auction_userid, auction_title, auction_categoryid, auction_description, ' +
-        'auction_startingdate, auction_endingdate, auction_reserveprice) VALUES (?)', values, function (err, result) {
+        'auction_creationdate, auction_startingdate, auction_endingdate, auction_reserveprice) VALUES (?)', values, function (err, result) {
         if (err) {
             return done(err);
         } else {
