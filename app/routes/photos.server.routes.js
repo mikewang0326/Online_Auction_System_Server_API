@@ -5,6 +5,6 @@ module.exports = function (app) {
     app.route('/api/v1/auctions/:auctionId/photos')
         // Get auction photo
         .get(photo.read)
-        .post(photo.create)
-        .delete(photo.delete);
+        .post(auth.isAuthenticated, photo.create)
+        .delete(auth.isAuthenticated, photo.delete);
 };
