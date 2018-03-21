@@ -123,7 +123,7 @@ exports.resample = function (req, res) {
 
     db.resample(sql.toString(), function (result) {
         if (sqlHelper.isSqlResultValid(result)) {
-            res.sendStatus(200);
+            res.sendStatus(201);
         } else {
             handleInvalidResult(res, result);
         }
