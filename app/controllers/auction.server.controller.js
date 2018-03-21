@@ -115,9 +115,9 @@ exports.read = function (req, res) {
     let auctionId = req.params.auctionId;
     console.log("reading... auctionId : " + auctionId);
 
-    if (null != auctionId && !validator.isNumeric(parseInt(auctionId))) {
-        return res.sendStatus(400);
-    }
+    // if (undefined != auctionId && !validator.isNumeric(auctionId)) {
+    //     return res.sendStatus(400);
+    // }
 
     let sql = sqlHelper.getOneAuctionSql(auctionId);
     new Promise(function (resolve, reject) {
