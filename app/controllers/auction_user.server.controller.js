@@ -18,52 +18,65 @@ exports.create = function (req, res) {
     let fields = new Array();
     let values = new Array();
 
+    let username = req.body.username;
+    let givenName = req.body.givenName;
+    let familyName = req.body.familyName;
+    let email = req.body.email;
+    let password = req.body.password;
 
-    let username = req.body.username.toString();
-    let givenName = req.body.givenName.toString();
-    let familyName = req.body.familyName.toString();
-    let email = req.body.email.toString();
-    let password = req.body.password.toString();
+    /*
+     * parameter check
+     *
+     * 1, username
+     *
+     * 2, email can not be empty and valid email
+     *
+     * 4, familyname empty
+     *
+     * 5, givenname empty
+     *
+     * 6, password empty
+     *
+     */
 
-    if (username != "" && username != undefined) {
+    if (username != undefined && username.toString() != "") {
         fields.push(keyMapping.requestKeyToMysqlKey("username"));
         values.push(username.toString());
     } else {
-        res.json({"error":"parameter empry"})
-        return;
+        res.sendStatus(400);
     }
 
-    if (givenName != "" && givenName != undefined) {
+    if (givenName != undefined && givenName.toString() != "") {
         fields.push(keyMapping.requestKeyToMysqlKey("givenName"));
-        values.push(username);
+        values.push(givenName.toString());
     } else {
-        res.json({"error":"parameter empry"})
-        return;
+        res.sendStatus(400);
     }
 
-    if (familyName != "" && familyName != undefined) {
+    if (familyName != undefined && familyName.toString() != "") {
         fields.push(keyMapping.requestKeyToMysqlKey("familyName"));
-        values.push(familyName);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
+        values.push(familyName.toString());
+    }else {
+        res.sendStatus(400);
     }
 
-    if (email != "" && email != undefined) {
+    if (email != undefined && email.toString() != "" && validator.isEmail(email)) {
         fields.push(keyMapping.requestKeyToMysqlKey("email"));
-        values.push(email);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
+        values.push(email.toString());
+    }else {
+        res.sendStatus(400);
     }
 
 
-    if (password != "" && password != undefined) {
+    if (password != undefined && password != "") {
         fields.push(keyMapping.requestKeyToMysqlKey("password"));
         values.push(password);
-    } else {
-        res.json({"error":"parameter empry"})
-        return;
+    }else {
+        res.sendStatus(400);
+    }
+
+    if (fields.length < 5) {
+        res.sendStatus(400);
     }
 
     let data = [
@@ -72,9 +85,13 @@ exports.create = function (req, res) {
     ];
 
     User.insert(data, function (result) {
-        let ret = handleCreateResult(result);
-        res.status(parseInt(ret['code']));
-        res.json(ret['data']);
+
+        if (sqlHelper.isSqlResultValid(result)) {
+              res.status(201);
+              res.json({'id':result['insertId']})
+        } else {
+            handleInvalidResult(res, result);
+        }
     })
 }
 
@@ -417,6 +434,20 @@ function authLogin(userId) {
 
         return ret;
     });
+}
+
+
+function handleInvalidResult(res, result) {
+    if (!sqlHelper.isSqlResultOk(result)) {
+        res.status(500);
+        res.send('Internal server error');
+    } else if (sqlHelper.isSqlResultEmpty(result)) {
+        res.status(404);
+        res.send('Not found');
+    } else {
+        res.status(500);
+        res.send('Bad request');
+    }
 }
 
 
