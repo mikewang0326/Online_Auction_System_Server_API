@@ -100,7 +100,7 @@ exports.getAuctionSearchSqlFromRequest = function (req) {
 exports.getOneAuctionSql = function (auctionId) {
     let sql =
     'SELECT\n' +
-    '    distinct a.auction_id, c.category_title, a.auction_title, a.auction_reserveprice, a.auction_startingdate, a.auction_endingdate, a.auction_description, a.auction_creationdate, a.auction_userid, au.user_username\n' +
+    '    distinct a.auction_id, a.auction_categoryid, c.category_title, a.auction_title, a.auction_reserveprice, a.auction_startingdate, a.auction_endingdate, a.auction_description, a.auction_creationdate, a.auction_userid, au.user_username\n' +
     'FROM\n' +
     '    auction a\n' +
     'LEFT JOIN category c ON a.auction_categoryid = c.category_id\n' +

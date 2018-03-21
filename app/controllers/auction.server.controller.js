@@ -5,8 +5,33 @@ const response = require('../response/auctions.response');
 const sqlHelper = require('../utils/sql.helper');
 const timeHelper = require('../utils/time.helper');
 const nodeDate = require('node-datetime');
+const validator = require('validator');
 
 exports.list = function (req, res) {
+    let seller = req.query.seller;
+    let bidder = req.query.bidder;
+    // let winner = req.query.winner;
+
+    let startIndex = req.query.startIndex;
+    let limit = req.query.count;
+
+    if (undefined != seller &&  !validator.isNumeric(seller)) {
+        return res.sendStatus(400);
+    }
+
+    if (undefined != bidder &&  !validator.isNumeric(bidder)) {
+        return res.sendStatus(400);
+    }
+
+    if (undefined != startIndex &&  !validator.isNumeric(startIndex)) {
+        return res.sendStatus(400);
+    }
+
+    if (undefined != limit &&  !validator.isNumeric(limit)) {
+        return res.sendStatus(400);
+    }
+
+
     let sql = sqlHelper.getAuctionSearchSqlFromRequest(req);
 
     new Promise(function (resolve, reject) {
@@ -14,9 +39,11 @@ exports.list = function (req, res) {
         Auction.getListBySql(sql, function (result) {
             if (sqlHelper.isSqlResultValid(result)) {
                 return resolve(result);
+            } else if (sqlHelper.isSqlResultEmpty(result)){
+                res.status(200);
+                res.json([]);
             } else {
                 return  res.status(500).send();
-                reject();
             }
 
         })
@@ -24,9 +51,7 @@ exports.list = function (req, res) {
     }).then(function (result) {
         res.status(200);
         res.json(response.createListData(result));
-
     }).catch(function (err) {
-
         return res.status(500).send();
     })
 }
@@ -41,6 +66,12 @@ exports.create = function (req, res) {
 
     let endDateTime = parseInt(req.body.endDateTime);
     let formattedEndingDate = timeHelper.convertMillsecondsToFormattedTime(endDateTime);
+
+    if (startDateTime < new Date().getTime()) {
+        return res.sendStatus(401);
+    }
+
+
 
 
     let auction_data = {
@@ -133,6 +164,11 @@ exports.getBidHistory = function (req, res) {
             if (sqlHelper.isSqlResultValid(result)) {
                 res.status(200);
                 res.json(response.createAuctionBidsData(result));
+                return res;
+            } else if (sqlHelper.isSqlResultEmpty(result)) {
+                res.status(200);
+                res.json([]);
+                return res;
             } else {
                 handleInvalidResult(res, result);
                 reject();

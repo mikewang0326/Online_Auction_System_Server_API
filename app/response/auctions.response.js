@@ -46,8 +46,8 @@ exports.creatOneAuctionData = function (result1, result2) {
 exports.createOneBasicAuctionData = function (result) {
     let item = {
         'categoryId': result[0]['auction_categoryid'],
-        'categoryTitle': result[0]['auction_title'],
-        'title': result[0]['auction_description'],
+        'categoryTitle': result[0]['category_title'],
+        'title': result[0]['auction_title'],
         'reservePrice': result[0]['auction_reserveprice'],
         'startDateTime': timeHelper.convertFormattedTimeToMillseconds(result[0]['auction_startingdate']),
         'endDateTime': timeHelper.convertFormattedTimeToMillseconds(result[0]['auction_endingdate']),
