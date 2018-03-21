@@ -111,58 +111,69 @@ exports.update = function (req, res) {
     let values = new Array();
 
 
-    let username = req.body.username.toString();
-    let givenName = req.body.givenName.toString();
-    let familyName = req.body.familyName.toString();
-    let email = req.body.email.toString();
-    let password = req.body.password.toString();
+    let username = req.body.username;
+    let givenName = req.body.givenName;
+    let familyName = req.body.familyName;
+    let email = req.body.email;
+    let password = req.body.password;
 
-    // TODO 参数校验
-    if (username != "" && username != undefined) {
+    /*
+     * parameter check
+     *
+     * 1, username
+     *
+     * 2, email can not be empty and valid email
+     *
+     * 4, familyname empty
+     *
+     * 5, givenname empty
+     *
+     * 6, password empty
+     *
+     */
+
+    if (username != undefined && !validator.isEmpty(username.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("username"));
-        values.push(username);
+        values.push(username.toString());
     } else {
-        res.json({"error":"parameter empry"})
-        return;
+        return res.sendStatus(400);
     }
 
-    if (givenName != "" && givenName != undefined) {
+    if (givenName != undefined && !validator.isEmpty(givenName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("givenName"));
-        values.push(username);
+        values.push(givenName.toString());
     } else {
-        res.json({"error":"parameter empry"})
-        return;
+        return res.sendStatus(400);
     }
 
-    if (familyName != "" && familyName != undefined) {
+    if (familyName != undefined && !validator.isEmpty(familyName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("familyName"));
-        values.push(familyName);
+        values.push(familyName.toString());
     } else {
-        res.json({"error":"parameter empry"})
-        return;
+        return res.sendStatus(400);
     }
 
-    if (email != "" && email != undefined) {
+    if (email != undefined && !validator.isEmpty(email.toString()) && validator.isEmail(email)) {
         fields.push(keyMapping.requestKeyToMysqlKey("email"));
-        values.push(email);
+        values.push(email.toString());
     } else {
-        res.json({"error":"parameter empry"})
-        return;
+        return res.sendStatus(400);
     }
 
 
-    if (password != "" && password != undefined) {
+    if (password != undefined && !validator.isEmpty(password)) {
         fields.push(keyMapping.requestKeyToMysqlKey("password"));
         values.push(password);
     } else {
-        res.json({"error":"parameter empry"})
-        return;
+        return res.sendStatus(400);
     }
 
     User.alter(userId, fields, values, function (result) {
-        let ret = handleUpdateResult(result);
-        res.status(ret['code']);
-        res.send(ret['data']);
+        if (sqlHelper.isSqlResultValid(result)) {
+            return res.sendStatus(201)
+        } else {
+            handleInvalidUpdateResult(res, result)
+        }
     });
 }
 
@@ -253,7 +264,7 @@ exports.logout = function (req, res) {
              if (!sqlHelper.isSqlResultEmpty(result)) {
                  return res.status(200).send("OK")
              } else {
-                 return res.sendStatus(500)
+                 return res.sendStatus(500);
              }
 
         });
@@ -355,21 +366,12 @@ function handleReadResult(result) {
  }
  ]
  */
-function handleUpdateResult(result) {
-    let ret = {
-        code: 201,
-        data: {}
-    };
-
-    if (!sqlHelper.isSqlResultOk(result) || sqlHelper.isSqlResultEmpty(result)) {
-        ret.code = 401;
-        ret.data = 'Unauthorized';
+function handleInvalidUpdateResult(res, result) {
+    if (sqlHelper.isSqlResultEmpty(result)) {
+        return res.sendStatus(401)
     } else {
-        ret.code = 201;
-        ret.data = 'ok'
+        return res.sendStatus(500);
     }
-
-    return ret;
 
 }
 
@@ -416,7 +418,7 @@ function handleLoginResult(result) {
 
 function authLogin(userId) {
     User.writeLoginAuthToken(userId, function (result) {
-        let ret = handleUpdateResult(result);
+        let ret = handleInvalidUpdateResult(result);
 
         if (ret['code'] == 201) {
             ret.code = 200;
