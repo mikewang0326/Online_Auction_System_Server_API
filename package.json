@@ -3,7 +3,7 @@
   "author": "Xin Wang <xwa118@uclive.ac.nz>",
   "version": "0.0.1",
   "scripts": {
-    "start": "app.js"
+    "start": "node app.js"
   },
   "dependencies": {
     "body-parser": "^1.17.2",

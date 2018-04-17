@@ -71,7 +71,31 @@ exports.create = function (req, res) {
         return res.sendStatus(401);
     }
 
-
+    // let auction_userid = req.body.userId;
+    // let auction_title = req.body.title;
+    // let auction_categoryid = req.body.categoryId;
+    // let auction_description = req.body.description;
+    // let auction_reserveprice = req.body.reservePrice;
+    //
+    // if (undefined  == auction_userid || validator.isEmpty(auction_userid.toString())) {
+    //     return res.sendStatus(401);
+    // }
+    //
+    // if (undefined  == auction_title || validator.isEmpty(auction_title.toString())) {
+    //     return res.sendStatus(401);
+    // }
+    //
+    // if (undefined  == auction_categoryid || !validator.isNumeric(auction_categoryid)) {
+    //     return res.sendStatus(401);
+    // }
+    //
+    // if (undefined  == auction_description || validator.isEmpty(auction_description.toString())) {
+    //     return res.sendStatus(401);
+    // }
+    //
+    // if (undefined == auction_reserveprice || !validator.isNumeric(parseFloat(auction_reserveprice))) {
+    //     return res.sendStatus(401);
+    // }
 
 
     let auction_data = {
@@ -288,8 +312,9 @@ exports.makeBid = function (req, res) {
                         if (isBidderNotSeller(userId, result) && isAmountNotAboveMax(amount,result) && isAuctionContinueded(result)) {
                             resolve(userId)
                         } else {
-                            handleInvalidResult(res, null);
-                            reject();
+                            // handleInvalidResult(res, null);
+                            return res.sendStatus(401);
+                            // reject();
                         }
                     }
 
