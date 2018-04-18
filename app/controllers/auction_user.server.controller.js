@@ -85,7 +85,7 @@ exports.create = function (req, res) {
 
         if (sqlHelper.isSqlResultValid(result)) {
               res.status(201);
-              res.json({'id':result['insertId']})
+              return res.json({'id':result['insertId']})
         } else {
             handleInvalidCreateResult(res, result);
         }
@@ -135,36 +135,30 @@ exports.update = function (req, res) {
     if (username != undefined && !validator.isEmpty(username.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("username"));
         values.push(username.toString());
-    } else {
-        return res.sendStatus(400);
     }
 
     if (givenName != undefined && !validator.isEmpty(givenName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("givenName"));
         values.push(givenName.toString());
-    } else {
-        return res.sendStatus(400);
     }
 
     if (familyName != undefined && !validator.isEmpty(familyName.toString())) {
         fields.push(keyMapping.requestKeyToMysqlKey("familyName"));
         values.push(familyName.toString());
-    } else {
-        return res.sendStatus(400);
     }
 
     if (email != undefined && !validator.isEmpty(email.toString()) && validator.isEmail(email)) {
         fields.push(keyMapping.requestKeyToMysqlKey("email"));
         values.push(email.toString());
-    } else {
-        return res.sendStatus(400);
     }
 
 
     if (password != undefined && !validator.isEmpty(password)) {
         fields.push(keyMapping.requestKeyToMysqlKey("password"));
         values.push(password);
-    } else {
+    }
+
+    if (fields.length == 0) {
         return res.sendStatus(400);
     }
 
@@ -230,7 +224,7 @@ exports.login = function (req, res) {
         User.writeLoginAuthToken(userId, function (result, userId, token) {
             if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
                 res.status(200);
-                res.json({
+                return res.json({
                     "id":userId,
                     "token":token
                 });
