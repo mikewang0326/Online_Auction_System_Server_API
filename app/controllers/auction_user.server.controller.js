@@ -1,4 +1,5 @@
 const User = require('../models/auction_user.server.model');
+const response = require('../response/auction_user.response');
 const keyMapping = require('../../config/keymapping')
 const sqlHelper = require('../utils/sql.helper');
 const validator = require('validator');
@@ -93,14 +94,35 @@ exports.create = function (req, res) {
 }
 
 exports.read = function (req, res) {
-    let userId = req.params.userId;
-    console.log("reading... userId : " + userId);
+    let otherUserId = req.params.userId;
+    let token = req.header("X-Authorization");
 
-    User.getOne(userId, function (result) {
-        let ret = handleReadResult(result)
-        res.status(parseInt(ret['code']));
-        res.json(ret['data']);
-    });
+    let promise = new Promise(function(resolve, reject) {
+
+        User.getUserIdByToken(token, function (result) {
+
+            if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
+                let currentUserId = result[0]['user_id'];
+                resolve(currentUserId);
+            } else {
+                handleInvalidResult(res, null);
+                return reject();
+            }
+        })
+
+    }).then(function(currentUserId) {
+        User.getOne(otherUserId, function (result) {
+            if (sqlHelper.isSqlResultValid(result)) {
+                res.status(200);
+                return res.json(response.createUserData(result, currentUserId, otherUserId));
+            } else {
+                handleInvalidResult(res, result);
+            }
+        });
+
+    }).catch(function (err) {
+        return res.sendStatus(500);
+    })
 
 }
 
