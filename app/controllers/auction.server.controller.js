@@ -75,39 +75,49 @@ exports.create = function (req, res) {
         })
 
     }).then(function(userId) {
+        let startDateTimeRaw = req.body.startDateTime;
+        let endDateTimeRaw = req.body.endDateTime;
+        let auction_title = req.body.title;
+        let auction_categoryid = req.body.categoryId;
+        let auction_description = req.body.description;
+        let auction_reserveprice = req.body.reservePrice;
+
+
+        if (undefined == startDateTimeRaw || !validator.isNumeric(startDateTimeRaw.toString()) || parseInt(startDateTimeRaw) <= 0) {
+            return res.sendStatus(400);
+        }
+
+        if (undefined == endDateTimeRaw || !validator.isNumeric(endDateTimeRaw.toString()) || parseInt(endDateTimeRaw) <= 0) {
+            return res.sendStatus(400);
+        }
+
+        if (undefined  == auction_title || validator.isEmpty(auction_title.toString())) {
+            return res.sendStatus(400);
+        }
+
+        if (undefined  == auction_categoryid || !validator.isNumeric(auction_categoryid.toString())) {
+            return res.sendStatus(400);
+        }
+
+        if (undefined  == auction_description || validator.isEmpty(auction_description.toString())) {
+            return res.sendStatus(400);
+        }
+
+        if (undefined == auction_reserveprice || !validator.isNumeric(auction_reserveprice.toString())
+            || parseFloat(auction_reserveprice) <= 0) {
+            return res.sendStatus(400);
+        }
+
+        let startDateTime = parseInt(startDateTimeRaw);
+        let endDateTime = parseInt(endDateTimeRaw);
+
+        if (endDateTime <= startDateTime) {
+            return res.sendStatus(400);
+        }
+
         let formattedCreationDate = timeHelper.convertMillsecondsToFormattedTime(new Date().getTime());
-
-        let startDateTime = parseInt(req.body.startDateTime);
         let formattedStartDateTime = timeHelper.convertMillsecondsToFormattedTime(startDateTime);
-
-        let endDateTime = parseInt(req.body.endDateTime);
         let formattedEndingDate = timeHelper.convertMillsecondsToFormattedTime(endDateTime);
-
-        // let auction_userid = req.body.userId;
-        // let auction_title = req.body.title;
-        // let auction_categoryid = req.body.categoryId;
-        // let auction_description = req.body.description;
-        // let auction_reserveprice = req.body.reservePrice;
-        //
-        // if (undefined  == auction_userid || validator.isEmpty(auction_userid.toString())) {
-        //     return res.sendStatus(401);
-        // }
-        //
-        // if (undefined  == auction_title || validator.isEmpty(auction_title.toString())) {
-        //     return res.sendStatus(401);
-        // }
-        //
-        // if (undefined  == auction_categoryid || !validator.isNumeric(auction_categoryid)) {
-        //     return res.sendStatus(401);
-        // }
-        //
-        // if (undefined  == auction_description || validator.isEmpty(auction_description.toString())) {
-        //     return res.sendStatus(401);
-        // }
-        //
-        // if (undefined == auction_reserveprice || !validator.isNumeric(parseFloat(auction_reserveprice))) {
-        //     return res.sendStatus(401);
-        // }
 
         let auction_data = {
             'auction_userid':userId,
