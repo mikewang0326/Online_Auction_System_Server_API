@@ -59,80 +59,97 @@ exports.list = function (req, res) {
 
 exports.create = function (req, res) {
 
-    let formattedCreationDate = timeHelper.convertMillsecondsToFormattedTime(new Date().getTime());
+    let token = req.header("X-Authorization");
 
-    let startDateTime = parseInt(req.body.startDateTime);
-    let formattedStartDateTime = timeHelper.convertMillsecondsToFormattedTime(startDateTime);
+    let promise = new Promise(function(resolve, reject) {
 
-    let endDateTime = parseInt(req.body.endDateTime);
-    let formattedEndingDate = timeHelper.convertMillsecondsToFormattedTime(endDateTime);
+        auctionUser.getUserIdByToken(token, function (result) {
 
-    if (startDateTime < new Date().getTime()) {
-        return res.sendStatus(401);
-    }
+            if (sqlHelper.isSqlResultOk(result) && !sqlHelper.isSqlResultEmpty(result)) {
+                let userId = result[0]['user_id'];
+                resolve(userId);
+            } else {
+                handleInvalidResult(res, null);
+                return reject();
+            }
+        })
 
-    // let auction_userid = req.body.userId;
-    // let auction_title = req.body.title;
-    // let auction_categoryid = req.body.categoryId;
-    // let auction_description = req.body.description;
-    // let auction_reserveprice = req.body.reservePrice;
-    //
-    // if (undefined  == auction_userid || validator.isEmpty(auction_userid.toString())) {
-    //     return res.sendStatus(401);
-    // }
-    //
-    // if (undefined  == auction_title || validator.isEmpty(auction_title.toString())) {
-    //     return res.sendStatus(401);
-    // }
-    //
-    // if (undefined  == auction_categoryid || !validator.isNumeric(auction_categoryid)) {
-    //     return res.sendStatus(401);
-    // }
-    //
-    // if (undefined  == auction_description || validator.isEmpty(auction_description.toString())) {
-    //     return res.sendStatus(401);
-    // }
-    //
-    // if (undefined == auction_reserveprice || !validator.isNumeric(parseFloat(auction_reserveprice))) {
-    //     return res.sendStatus(401);
-    // }
+    }).then(function(userId) {
+        let formattedCreationDate = timeHelper.convertMillsecondsToFormattedTime(new Date().getTime());
 
+        let startDateTime = parseInt(req.body.startDateTime);
+        let formattedStartDateTime = timeHelper.convertMillsecondsToFormattedTime(startDateTime);
 
-    let auction_data = {
-        'auction_userid':req.body.userId,
-        'auction_title':req.body.title,
-        'auction_categoryid':req.body.categoryId,
+        let endDateTime = parseInt(req.body.endDateTime);
+        let formattedEndingDate = timeHelper.convertMillsecondsToFormattedTime(endDateTime);
 
-        'auction_description':req.body.description,
-        'auction_creationdate':formattedCreationDate,
-        'auction_startingdate':formattedStartDateTime,
+        // let auction_userid = req.body.userId;
+        // let auction_title = req.body.title;
+        // let auction_categoryid = req.body.categoryId;
+        // let auction_description = req.body.description;
+        // let auction_reserveprice = req.body.reservePrice;
+        //
+        // if (undefined  == auction_userid || validator.isEmpty(auction_userid.toString())) {
+        //     return res.sendStatus(401);
+        // }
+        //
+        // if (undefined  == auction_title || validator.isEmpty(auction_title.toString())) {
+        //     return res.sendStatus(401);
+        // }
+        //
+        // if (undefined  == auction_categoryid || !validator.isNumeric(auction_categoryid)) {
+        //     return res.sendStatus(401);
+        // }
+        //
+        // if (undefined  == auction_description || validator.isEmpty(auction_description.toString())) {
+        //     return res.sendStatus(401);
+        // }
+        //
+        // if (undefined == auction_reserveprice || !validator.isNumeric(parseFloat(auction_reserveprice))) {
+        //     return res.sendStatus(401);
+        // }
 
-        'auction_endingdate':formattedEndingDate,
-        'auction_reserveprice':req.body.reservePrice,
-    };
+        let auction_data = {
+            'auction_userid':userId,
+            'auction_title':req.body.title,
+            'auction_categoryid':req.body.categoryId,
 
-    let values = [
-        auction_data['auction_userid'],
-        auction_data['auction_title'],
-        auction_data['auction_categoryid'],
+            'auction_description':req.body.description,
+            'auction_creationdate':formattedCreationDate,
+            'auction_startingdate':formattedStartDateTime,
 
-        auction_data['auction_description'],
-        auction_data['auction_creationdate'],
-        auction_data['auction_startingdate'],
+            'auction_endingdate':formattedEndingDate,
+            'auction_reserveprice':req.body.reservePrice,
+        };
 
-        auction_data['auction_endingdate'],
-        auction_data['auction_reserveprice']
-    ];
+        let values = [
+            auction_data['auction_userid'],
+            auction_data['auction_title'],
+            auction_data['auction_categoryid'],
 
-    Auction.insert(values, function (result) {
-        if (sqlHelper.isSqlResultValid(result)) {
-            res.status(201);
-            res.json({'id': result['insertId']});
-        } else {
-            return res.sendStatus(500);
-        }
+            auction_data['auction_description'],
+            auction_data['auction_creationdate'],
+            auction_data['auction_startingdate'],
 
+            auction_data['auction_endingdate'],
+            auction_data['auction_reserveprice']
+        ];
+
+        Auction.insert(values, function (result) {
+            if (sqlHelper.isSqlResultValid(result)) {
+                res.status(201);
+                return res.json({'id': result['insertId']});
+            } else {
+                return res.sendStatus(500);
+            }
+
+        })
+
+    }).catch(function (err) {
+        res.status(400);
+        res.send('Bad request');
     })
+
 }
 
 exports.read = function (req, res) {
