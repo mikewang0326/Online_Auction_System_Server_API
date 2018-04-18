@@ -41,7 +41,7 @@ exports.list = function (req, res) {
                 return resolve(result);
             } else if (sqlHelper.isSqlResultEmpty(result)){
                 res.status(200);
-                res.json([]);
+                return res.json([]);
             } else {
                 return  res.status(500).send();
             }
@@ -50,7 +50,7 @@ exports.list = function (req, res) {
 
     }).then(function (result) {
         res.status(200);
-        res.json(response.createListData(result));
+        return res.json(response.createListData(result));
     }).catch(function (err) {
         return res.status(500).send();
     })

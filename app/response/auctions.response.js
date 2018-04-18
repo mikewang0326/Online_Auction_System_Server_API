@@ -14,9 +14,9 @@ exports.createListData = function (result) {
     for (let i=0; i< length; i++) {
         let item = {
             'id':result[i]['auction_id'],
-            'categoryTitle':result[i]['auction_title'],
+            'categoryTitle':result[i]['category_title'],
             'categoryId':result[i]['auction_categoryid'],
-            'title':result[i]['auction_description'],
+            'title':result[i]['auction_title'],
             'reservePrice':result[i]['auction_reserveprice'],
             'startDateTime':timeHelper.convertFormattedTimeToMillseconds(result[i]['auction_startingdate']),
             'endDateTime':timeHelper.convertFormattedTimeToMillseconds(result[i]['auction_endingdate']),
