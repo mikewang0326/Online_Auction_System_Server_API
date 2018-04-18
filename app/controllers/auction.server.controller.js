@@ -264,45 +264,55 @@ exports.update = function (req, res) {
     }).then(function(userId) {
         // according to auction_id and auction_
         let auction_title = req.body.title.toString();
-        let auction_categoryid = parseInt(req.body.categoryId);
-        let auction_description = req.body.description.toString();
-        let auction_startingdate = req.body.startDateTime.toString();
-        let auction_endingdate = req.body.endDateTime.toString();
-        let auction_reserveprice = parseFloat(req.body.reservePrice);
+        let auction_categoryid = req.body.categoryId;
+        let auction_description = req.body.description;
+
+        let auction_startingdate = req.body.startDateTime;
+        let auction_endingdate = req.body.endDateTime;
+
+        let auction_reserveprice = req.body.reservePrice;
 
         let fields = new Array();
         let values = new Array();
 
-
-
-        if (auction_title != "" && auction_title != undefined) {
+        if (auction_title != undefined && !validator.isEmpty(auction_title.toString())) {
             fields.push('auction_title');
-            values.push(auction_title);
+            values.push(auction_title.toString());
         }
 
-        if (auction_categoryid != "" && auction_categoryid != undefined) {
+        if (auction_categoryid != undefined && validator.isNumeric(auction_categoryid.toString())
+            && parseInt(auction_categoryid) > 0) {
             fields.push('auction_categoryid');
-            values.push(auction_categoryid);
+            values.push(parseInt(auction_categoryid));
         }
 
-        if (auction_description != "" && auction_description != undefined) {
+        if (auction_description != undefined && !validator.isEmpty(auction_description.toString())) {
             fields.push('auction_description');
-            values.push(auction_description);
+            values.push(auction_description.toString());
         }
 
-        if (auction_startingdate != "" && auction_startingdate != undefined) {
+        if (auction_startingdate != undefined && validator.isNumeric(auction_startingdate.toString())
+            && parseInt(auction_startingdate) > 0) {
             fields.push('auction_startingdate');
-            values.push(auction_startingdate);
+            let formattedStartDateTime = timeHelper.convertMillsecondsToFormattedTime(auction_startingdate);
+            values.push(formattedStartDateTime);
         }
 
-        if (auction_endingdate != "" && auction_endingdate != undefined) {
+        if (auction_endingdate != undefined && validator.isNumeric(auction_endingdate.toString())
+            && parseInt(auction_endingdate) > 0) {
             fields.push('auction_endingdate');
-            values.push(auction_endingdate);
+            let formattedEndingDate = timeHelper.convertMillsecondsToFormattedTime(auction_endingdate);
+            values.push(formattedEndingDate);
         }
 
-        if (auction_reserveprice != "" && auction_reserveprice != undefined) {
+        if (auction_reserveprice != undefined && validator.isNumeric(auction_reserveprice.toString())
+            && parseFloat(auction_reserveprice) > 0) {
             fields.push('auction_reserveprice');
-            values.push(auction_reserveprice);
+            values.push(parseFloat(auction_reserveprice));
+        }
+
+        if (fields.length == 0 || values.length == 0) {
+            return res.sendStatus(400);
         }
 
 
@@ -316,8 +326,7 @@ exports.update = function (req, res) {
         });
 
     }).catch(function (err) {
-        res.status(400);
-        res.send('Bad request');
+        return res.sendStatus(500);
     })
 }
 
