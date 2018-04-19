@@ -14,8 +14,6 @@ exports.list = function (req, res) {
 }
 
 exports.create = function (req, res) {
-    console.log("create photo ");
-[]
     let auctionId = parseInt(req.params.auctionId);
 
     /*
@@ -98,33 +96,22 @@ exports.create = function (req, res) {
 }
 
 exports.read = function (req, res) {
-    console.log("0000000000000000")
     let auctionId = parseInt(req.params.auctionId);
-    console.log("111111111111111111")
     new Promise(function (resolve, reject) {
-        console.log("2222222222222222")
         photo.getPhotosByAuctionId(auctionId, function (result) {
-            console.log("3333333333333333")
             if (sqlHelper.isSqlResultValid(result)) {
-                console.log("4444444444444444")
                 let imagePath = result[0]['photo_image_URI'];
-                console.log("555555555555555")
                 return resolve(imagePath);
             } else {
-                console.log("66666666666666")
                 handleInvalidResult(res, result);
-                console.log("7777777777777777")
                 reject();
             }
         });
     }).then(function (imagePath) {
 
-        console.log("88888888888888")
         loadImage(res, imagePath);
-        console.log("999999999999999")
 
     }).catch(function (err) {
-        console.log("10101010101010101101010")
         // 201 ok
         // 400 bad request
         // 404 not found
@@ -343,7 +330,6 @@ function handleInvalidResult(res, result) {
 
 
 function loadImage(res, path) {
-    console.log("llllllllllllllllllloadImage")
     fs.readFile(path, 'binary', function (err, file) {
         if (err) {
            handleInvalidResult(res, null);

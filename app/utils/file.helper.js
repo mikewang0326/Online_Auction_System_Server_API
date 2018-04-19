@@ -26,7 +26,7 @@ exports.getPhotoDownloadFile = function(auctionId, photoId) {
  *
  * 1, create
  */
-exports.savePhoto = function (req, auctionId, photoId, photoType, done) {
+exports.savePhoto = function (req, auctionId, photoId, done) {
     let ret = false;
     let dir = exports.getPhotoDownloadDir(auctionId);
     let filePath = exports.getPhotoDownloadFile(auctionId, photoId);
@@ -103,13 +103,10 @@ exports.getImageType = function (path) {
 }
 
 exports.getImageImmeType = function (path) {
-    console.log("pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhh = " + path)
     let immeType = "unknow";
     if (path.endsWith(".jpeg")) {
-        console.log("pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  11111 = ")
         immeType = "image/jpeg";
     } else if (path.endsWith(".png")) {
-        console.log("pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  222222 = ")
         immeType = "image/png";
     }
     return immeType;
