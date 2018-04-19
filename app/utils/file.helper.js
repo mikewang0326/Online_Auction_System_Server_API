@@ -1,7 +1,5 @@
 var fs = require("fs");
 var path = require("path");
-const readChunk = require('read-chunk');
-const imageType = require('image-type');
 
 const PHOTO_DOWNLOAD_DIR_PREFIX = './download/photos/auctions/';
 
@@ -18,7 +16,7 @@ function createDirIfNeed (dir) {
 
 exports.getPhotoDownloadFile = function(auctionId, photoId) {
     photoId = 1; // make code simper, do not create increment photoId
-    let dir = exports.getPhotoDownloadDir(auctionId) + '/' + photoId + '.png';
+    let dir = exports.getPhotoDownloadDir(auctionId) + '/' + photoId + '.jpeg';
     return dir;
 }
 
@@ -28,7 +26,7 @@ exports.getPhotoDownloadFile = function(auctionId, photoId) {
  *
  * 1, create
  */
-exports.savePhoto = function (req, auctionId, photoId, done) {
+exports.savePhoto = function (req, auctionId, photoId, photoType, done) {
     let ret = false;
     let dir = exports.getPhotoDownloadDir(auctionId);
     let filePath = exports.getPhotoDownloadFile(auctionId, photoId);
@@ -95,10 +93,29 @@ function deleteDir(path) {
  * }
  */
 exports.getImageType = function (path) {
-    const buffer = readChunk.sync(path, 0, 12);
-    let type = imageType(buffer);
-    return type;
+    let imageType = "unknow";
+    if (path.endsWith(".jpeg")) {
+        imageType = "jpeg";
+    } else if (path.endsWith(".png")) {
+        imageType = "png";
+    }
+    return imageType;
 }
+
+exports.getImageImmeType = function (path) {
+    console.log("pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhh = " + path)
+    let immeType = "unknow";
+    if (path.endsWith(".jpeg")) {
+        console.log("pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  11111 = ")
+        immeType = "image/jpeg";
+    } else if (path.endsWith(".png")) {
+        console.log("pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  222222 = ")
+        immeType = "image/png";
+    }
+    return immeType;
+}
+
+
 
 
 

@@ -15,8 +15,9 @@ exports.list = function (req, res) {
 
 exports.create = function (req, res) {
     console.log("create photo ");
-
+[]
     let auctionId = parseInt(req.params.auctionId);
+
     /*
      *  save photo to local dir steps:
      *
@@ -47,24 +48,19 @@ exports.create = function (req, res) {
 
         photo.insert(data, function (result) {
             if (sqlHelper.isSqlResultValid(result)) {
-                return resolve(result['insertId']);
+                let photoId = 1;
+                fileHelper.savePhoto(req, auctionId, photoId, function (result, auctionId, photoId) {
+                    if (result) {
+                        return resolve([auctionId, photoId]);
+                    } else {
+                        handleInvalidResult(res, null);
+                        reject();
+                    }
+                });
             } else {
                 handleInvalidResult(res, result);
                 reject();
             }
-        });
-
-    }).then(function(photoId) {
-
-        return new Promise(function(resolve, reject) {
-            fileHelper.savePhoto(req, auctionId, photoId, function (result, auctionId, photoId) {
-                if (result) {
-                    resolve([auctionId, photoId]);
-                } else {
-                    handleInvalidResult(res, null);
-                    reject();
-                }
-            });
         });
 
     }).then(function (ids) {
@@ -79,7 +75,7 @@ exports.create = function (req, res) {
         values.push(fileHelper.getPhotoDownloadFile(auctionId, photoId).toString());
 
 
-        photo.alter(photoId, fields, values, function (result) {
+        photo.alter(auctionId, fields, values, function (result) {
             if (sqlHelper.isSqlResultValid(result)) {
                 return res.sendStatus(201);
             } else {
@@ -102,27 +98,33 @@ exports.create = function (req, res) {
 }
 
 exports.read = function (req, res) {
+    console.log("0000000000000000")
     let auctionId = parseInt(req.params.auctionId);
-
+    console.log("111111111111111111")
     new Promise(function (resolve, reject) {
-
+        console.log("2222222222222222")
         photo.getPhotosByAuctionId(auctionId, function (result) {
+            console.log("3333333333333333")
             if (sqlHelper.isSqlResultValid(result)) {
+                console.log("4444444444444444")
                 let imagePath = result[0]['photo_image_URI'];
+                console.log("555555555555555")
                 return resolve(imagePath);
             } else {
+                console.log("66666666666666")
                 handleInvalidResult(res, result);
+                console.log("7777777777777777")
                 reject();
             }
-
         });
-
-
     }).then(function (imagePath) {
 
+        console.log("88888888888888")
         loadImage(res, imagePath);
+        console.log("999999999999999")
 
     }).catch(function (err) {
+        console.log("10101010101010101101010")
         // 201 ok
         // 400 bad request
         // 404 not found
@@ -170,8 +172,7 @@ exports.delete = function (req, res) {
         fileHelper.deletePhotosForSpecificAuction(auctionId, function (result) {
             if (result) {
                 console.log("delete succeed")
-                res.status(201);
-                res.send('ok');
+                return res.sendStatus(201);
             } else {
                 handleInvalidResult(res, null);
             }
@@ -329,31 +330,28 @@ function handleUpdateResult(result) {
 function handleInvalidResult(res, result) {
 
     if (!sqlHelper.isSqlResultOk(result)) {
-        res.status(500);
-        res.send('Internal server error');
+        return res.sendStatus(500);
+        // res.send('Internal server error');
     } else if (sqlHelper.isSqlResultEmpty(result)) {
-        res.status(404);
-        res.send('Not found');
+        return res.sendStatus(404);
+        // res.send('Not found');
     } else {
-        res.status(400);
-        res.send('Bad request');
+        return res.sendStatus(400);
+        // res.send('Bad request');
     }
 }
 
 
 function loadImage(res, path) {
-    console.log("111111111111111111111111111111 loadImage")
+    console.log("llllllllllllllllllloadImage")
     fs.readFile(path, 'binary', function (err, file) {
         if (err) {
            handleInvalidResult(res, null);
         } else {
             res.status(200);
-            let type = fileHelper.getImageType(path);
-            if (undefined != type && !validator.isEmpty(type['mime'].toString())) {
-                res.setHeader('content-type', type['mime']);
-            }
+            res.setHeader('content-type', fileHelper.getImageImmeType(path));
             res.write(file, 'binary');
-            res.end();
+            return res.end();
         }
     });
 }

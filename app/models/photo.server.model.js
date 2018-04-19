@@ -62,7 +62,7 @@ exports.alter = function (photoId, fields, fieldsValues, done) {
         [photoId]
     ];
 
-    db.get_pool().query('UPDATE photo SET ' + sqlSetString + ' where photo_id = ?', values, function (err, result) {
+    db.get_pool().query('UPDATE photo SET ' + sqlSetString + ' where photo_auctionid = ?', values, function (err, result) {
         if (err) {
             return done(err);
         } else {

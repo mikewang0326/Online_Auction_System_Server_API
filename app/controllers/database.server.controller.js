@@ -46,7 +46,7 @@ exports.read = function (req, res) {
     let auctionId = req.params.auctionId;
     console.log("reading... auctionId : " + auctionId);
     Auction.getOne(auctionId, function (result) {
-        res.status(200).json(result);
+        return res.status(200).json(result);
     });
 
 }
@@ -103,7 +103,7 @@ exports.reset = function (req, res) {
 
     db.reset(sql.toString(), function (result) {
         if (sqlHelper.isSqlResultValid(result)) {
-            res.sendStatus(200);
+            return res.sendStatus(200);
         } else {
             handleInvalidResult(res, result);
         }
@@ -123,7 +123,7 @@ exports.resample = function (req, res) {
 
     db.resample(sql.toString(), function (result) {
         if (sqlHelper.isSqlResultValid(result)) {
-            res.sendStatus(201);
+            return res.sendStatus(201);
         } else {
             handleInvalidResult(res, result);
         }
@@ -132,11 +132,11 @@ exports.resample = function (req, res) {
 
 function handleInvalidResult(res, result) {
     if (!sqlHelper.isSqlResultOk(result)) {
-        res.sendStatus(500);
+        return res.sendStatus(500);
     } else if (sqlHelper.isSqlResultEmpty(result)) {
-        res.sendStatus(400);
+        return res.sendStatus(400);
     } else {
-        res.sendStatus(400);
+        return res.sendStatus(400);
     }
 }
 

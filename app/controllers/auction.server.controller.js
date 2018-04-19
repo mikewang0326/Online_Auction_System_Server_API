@@ -156,8 +156,7 @@ exports.create = function (req, res) {
         })
 
     }).catch(function (err) {
-        res.status(400);
-        res.send('Bad request');
+        return res.sendStatus(400);
     })
 
 }
@@ -234,11 +233,9 @@ exports.getBidHistory = function (req, res) {
     }).catch(function (err) {
 
         if (err == undefined || err.code != 404 || err.code != 500) {
-            res.status(400);
-            res.send(err.message);
+            return res.sendStatus(400);
         } else {
-            res.status(err.code);
-            res.send(err.message);
+            return res.sendStatus(err.code);
         }
     })
 
@@ -318,8 +315,7 @@ exports.update = function (req, res) {
 
         Auction.alter(auctionId, userId, fields, values, function (result) {
             if (sqlHelper.isSqlResultValid(result)) {
-                res.status(201);
-                res.send('');
+                return res.sendStatus(201);
             } else {
                 handleInvalidResult(res, result);
             }
@@ -389,8 +385,7 @@ exports.makeBid = function (req, res) {
 
 
     }).catch(function (err) {
-        res.status(400);
-        res.send('Bad request');
+        return res.sendStatus(400);
     })
 }
 
