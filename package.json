@@ -12,6 +12,8 @@
     "validator": "^9.4.1",
     "express-validator": "^5.0.3",
     "promise": "^8.0.1",
-    "node-datetime": "^2.0.6"
+    "node-datetime": "^2.0.6",
+    "image-type": "^3.0.0",
+    "read-chunk": "^2.1.0"
   }
 }

@@ -1,5 +1,7 @@
 var fs = require("fs");
 var path = require("path");
+const readChunk = require('read-chunk');
+const imageType = require('image-type');
 
 const PHOTO_DOWNLOAD_DIR_PREFIX = './download/photos/auctions/';
 
@@ -15,6 +17,7 @@ function createDirIfNeed (dir) {
 }
 
 exports.getPhotoDownloadFile = function(auctionId, photoId) {
+    photoId = 1; // make code simper, do not create increment photoId
     let dir = exports.getPhotoDownloadDir(auctionId) + '/' + photoId + '.png';
     return dir;
 }
@@ -83,6 +86,19 @@ function deleteDir(path) {
 
     return ret;
 };
+
+
+/**
+ * {
+ *   "ext": "jpg",
+ *  "mime": "image/jpeg"
+ * }
+ */
+exports.getImageType = function (path) {
+    const buffer = readChunk.sync(path, 0, 12);
+    let type = imageType(buffer);
+    return type;
+}
 
 
 

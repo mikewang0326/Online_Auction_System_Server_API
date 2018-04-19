@@ -81,8 +81,7 @@ exports.create = function (req, res) {
 
         photo.alter(photoId, fields, values, function (result) {
             if (sqlHelper.isSqlResultValid(result)) {
-                res.status(201);
-                res.send('ok');
+                return res.sendStatus(201);
             } else {
                 handleInvalidResult(result)
             }
@@ -94,11 +93,9 @@ exports.create = function (req, res) {
         // 404 not found
         // 405 inner error
         if (err == undefined || err.code != 404 || err.code != 500) {
-            res.status(400);
-            res.send(err.message);
+            return res.sendStatus(400);
         } else {
-            res.status(err.code);
-            res.send(err.message);
+            return res.sendStatus(err.code);
         }
     })
 
@@ -131,11 +128,11 @@ exports.read = function (req, res) {
         // 404 not found
         // 405 inner error
         if (err == undefined || err.code != 404 || err.code != 500) {
-            res.status(400);
-            res.send(err.message);
+            console.log(err);
+            return res.sendStatus(400);
         } else {
-            res.status(err.code);
-            res.send(err.message);
+            console.log(err);
+            return res.sendStatus(err.code);
         }
     })
 
@@ -186,11 +183,11 @@ exports.delete = function (req, res) {
         // 404 not found
         // 405 inner error
         if (err == undefined ||err.code != 404 || err.code != 500) {
-            res.status(400);
-            res.send(err.message);
+            console.log(err);
+            return res.sendStatus(400);
         } else {
-            res.status(err.code);
-            res.send(err.message);
+            console.log(err);
+            return res.status(err.code);
         }
     })
 
@@ -345,11 +342,16 @@ function handleInvalidResult(res, result) {
 
 
 function loadImage(res, path) {
+    console.log("111111111111111111111111111111 loadImage")
     fs.readFile(path, 'binary', function (err, file) {
         if (err) {
            handleInvalidResult(res, null);
         } else {
             res.status(200);
+            let type = fileHelper.getImageType(path);
+            if (undefined != type && !validator.isEmpty(type['mime'].toString())) {
+                res.setHeader('content-type', type['mime']);
+            }
             res.write(file, 'binary');
             res.end();
         }
