@@ -20,6 +20,12 @@ exports.getPhotoDownloadFile = function(auctionId, photoId) {
     return dir;
 }
 
+exports.getDefaultPhotoDownloadFile = function() {
+    let dir = PHOTO_DOWNLOAD_DIR_PREFIX + "default.jpg";
+    return dir;
+}
+
+
 /**
  *
  * save photo steps:

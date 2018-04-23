@@ -102,6 +102,8 @@ exports.read = function (req, res) {
             if (sqlHelper.isSqlResultValid(result)) {
                 let imagePath = result[0]['photo_image_URI'];
                 return resolve(imagePath);
+            } else if (sqlHelper.isSqlResultEmpty(result)) {
+                return resolve(fileHelper.getDefaultPhotoDownloadFile())
             } else {
                 handleInvalidResult(res, result);
                 reject();
