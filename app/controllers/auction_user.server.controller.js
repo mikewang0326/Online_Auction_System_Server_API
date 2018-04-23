@@ -14,8 +14,6 @@ exports.list = function (req, res) {
 
 exports.create = function (req, res) {
 
-    console.log("create auction user ");
-
     let fields = new Array();
     let values = new Array();
 

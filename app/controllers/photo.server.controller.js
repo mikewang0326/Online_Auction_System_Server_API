@@ -160,7 +160,6 @@ exports.delete = function (req, res) {
 
         fileHelper.deletePhotosForSpecificAuction(auctionId, function (result) {
             if (result) {
-                console.log("delete succeed")
                 return res.sendStatus(201);
             } else {
                 handleInvalidResult(res, null);

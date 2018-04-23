@@ -90,8 +90,6 @@ exports.insert = function (params, done) {
 exports.alter = function (auctionId, userId, fields, fieldsValues, done) {
     let sqlSetString = sqlHelper.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
 
-    console.log("sqlSetString is :" + sqlSetString);
-
     let values = [
         [auctionId],
         [userId]

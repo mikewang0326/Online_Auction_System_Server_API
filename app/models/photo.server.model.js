@@ -56,8 +56,6 @@ exports.insert = function (values, done) {
 exports.alter = function (photoId, fields, fieldsValues, done) {
     let sqlSetString = sqlHelper.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
 
-    console.log("sqlSetString is :" + sqlSetString);
-
     let values = [
         [photoId]
     ];

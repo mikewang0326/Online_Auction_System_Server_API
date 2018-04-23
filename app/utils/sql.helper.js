@@ -238,7 +238,6 @@ exports.isSqlResultEmpty = function (result) {
         ret =  true;
     }
 
-    console.log('isSqlResultEmpty : ' + ret);
     return ret;
 }
 

@@ -72,8 +72,6 @@ exports.getList = function (conditions, done) {
 exports.alter = function (userId, fields, fieldsValues, done) {
     let sqlSetString = sqlHelper.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
 
-    console.log("sqlSetString is :" + sqlSetString);
-
     let values = [
         [userId]
     ];
@@ -90,7 +88,6 @@ exports.alter = function (userId, fields, fieldsValues, done) {
 
 exports.writeLoginAuthToken = function (userId, done) {
     let token = cryptoHelper.createUserToken(userId).toString();
-    console.log("token is :" + token);
 
     let values = [
         [userId]
