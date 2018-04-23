@@ -4,7 +4,7 @@ exports.createUserSalt = function () {
     return 'usersalt';
 }
 
-exports.createCryptoPassword = function (orginalPassord, salt) {
+exports.createCryptoPassword = function (orginalPassord, salt = exports.createUserSalt()) {
     let cryptoPassword = ''.concat(orginalPassord).concat(salt);
     return cryptoPassword;
 }
