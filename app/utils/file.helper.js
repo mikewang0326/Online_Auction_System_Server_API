@@ -103,12 +103,12 @@ exports.getImageType = function (path) {
 }
 
 exports.getImageImmeType = function (path) {
-    let immeType = "image/jpeg";
-    if (path.endsWith(".jpeg")) {
-        immeType = "image/jpeg";
-    } else if (path.endsWith(".png")) {
-        immeType = "image/png";
-    }
+    let immeType = "image/png";
+    // if (path.endsWith(".jpeg")) {
+    //     immeType = "image/jpeg";
+    // } else if (path.endsWith(".png")) {
+    //     immeType = "image/png";
+    // }
     return immeType;
 }
 
