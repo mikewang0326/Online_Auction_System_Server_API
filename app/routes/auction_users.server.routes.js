@@ -2,6 +2,13 @@ const auctionUsers = require('../controllers/auction_user.server.controller');
 const auth = require('../../config/middleware');
 
 module.exports = function (app) {
+
+    app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    });
+
     app.route('/api/v1/users')
         // Get all users
         .get(auctionUsers.getAll)
