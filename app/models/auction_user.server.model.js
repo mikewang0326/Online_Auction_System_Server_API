@@ -98,6 +98,16 @@ exports.alter = function (userId, fields, fieldsValues, done) {
     return null;
 }
 
+exports.remove = function (userId, done) {
+    db.get_pool().query('DELETE FROM auction_user where user_id = ?', userId, function (err, result) {
+        if (err) {
+            return done(err);
+        } else {
+            return done(result)
+        }
+    });
+}
+
 exports.writeLoginAuthToken = function (userId, done) {
     let token = cryptoHelper.createUserToken(userId).toString();
 

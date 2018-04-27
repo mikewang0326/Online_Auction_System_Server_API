@@ -201,7 +201,7 @@ exports.delete = function (req, res) {
     let userId = req.params.userId;
     console.log("delete... userId : " + userId);
     User.remove(userId, function (result) {
-        res.json(result);
+        return res.json(result);
     });
 }
 

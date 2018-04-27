@@ -6,7 +6,9 @@ module.exports = function (app) {
     app.use(function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
         next();
+
     });
 
     app.route('/api/v1/users')
@@ -27,5 +29,8 @@ module.exports = function (app) {
         // Get user by user id
         .get(auth.isAuthenticated, auctionUsers.read)
         // Change some selected information for a user
-        .patch(auth.isAuthenticated, auctionUsers.update);
+        .patch(auth.isAuthenticated, auctionUsers.update)
+        // Delete one
+        .delete(auctionUsers.delete);
+
 };

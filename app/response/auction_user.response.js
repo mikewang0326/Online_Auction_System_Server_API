@@ -38,6 +38,7 @@ exports.createAllUserData = function (result) {
     let length = result.length;
     for (let i=0; i< length; i++) {
         let item = {
+            'user_id':result[i]['user_id'],
             'username': result[i][keyMapping.requestKeyToMysqlKey("username")],
             'givenName': result[i][keyMapping.requestKeyToMysqlKey("givenName")],
             'familyName': result[i][keyMapping.requestKeyToMysqlKey("familyName")],
