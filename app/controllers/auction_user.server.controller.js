@@ -6,10 +6,16 @@ const validator = require('validator');
 const middleware = require('../../config/middleware')
 const promise = require('promise')
 
-exports.list = function (req, res) {
+
+exports.getAll = function (req, res) {
     User.getAll(function (result) {
-        res.json(result);
-    })
+        if (sqlHelper.isSqlResultValid(result)) {
+            res.status(200);
+            return res.json(response.createAllUserData(result));
+        } else {
+            handleInvalidResult(res, result);
+        }
+    });
 }
 
 exports.create = function (req, res) {
@@ -448,7 +454,6 @@ function authLogin(userId) {
         return ret;
     });
 }
-
 
 function handleInvalidResult(res, result) {
     if (!sqlHelper.isSqlResultOk(result)) {

@@ -69,6 +69,18 @@ exports.getList = function (conditions, done) {
     return null;
 }
 
+exports.getAll = function (done) {
+    db.get_pool().query('SELECT * FROM auction_user', function (err, rows) {
+        if (err) {
+            return done(err);
+        } else {
+            done(rows);
+        }
+    });
+    return null;
+}
+
+
 exports.alter = function (userId, fields, fieldsValues, done) {
     let sqlSetString = sqlHelper.getUpdateSetStringByFieldsAndValues(fields, fieldsValues);
 

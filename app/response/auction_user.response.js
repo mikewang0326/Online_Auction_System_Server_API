@@ -33,5 +33,21 @@ exports.createOtherUserData = function (result) {
     return data
 }
 
+exports.createAllUserData = function (result) {
+    let data = Array();
+    let length = result.length;
+    for (let i=0; i< length; i++) {
+        let item = {
+            'username': result[i][keyMapping.requestKeyToMysqlKey("username")],
+            'givenName': result[i][keyMapping.requestKeyToMysqlKey("givenName")],
+            'familyName': result[i][keyMapping.requestKeyToMysqlKey("familyName")],
+        }
+
+        data.push(item);
+    }
+
+    return data
+}
+
 
 

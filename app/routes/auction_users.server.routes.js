@@ -3,6 +3,8 @@ const auth = require('../../config/middleware');
 
 module.exports = function (app) {
     app.route('/api/v1/users')
+        // Get all users
+        .get(auctionUsers.getAll)
         // Create user
         .post(auctionUsers.create);
 
